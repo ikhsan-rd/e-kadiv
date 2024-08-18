@@ -29,6 +29,7 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
+
         try {
             const response = await axios.post(
                 "http://localhost:8000/api/login",
@@ -37,19 +38,25 @@ function Login() {
                     password,
                 }
             );
-            localStorage.setItem("token", response.data.token);
-            setSuccess("Login successful!");
-            setError(null);
-            alert("Login successful! Redirecting to Homepage...");
-            setTimeout(() => {
-                navigate("/");
-            }, 100);
+
+            console.log("API Response:", response); // Log full response
+            console.log("Token from Response:", response.data.access_token); // Log token
+
+            if (response.data.access_token) {
+                localStorage.setItem("token", response.data.access_token);
+                console.log("Token Stored:", localStorage.getItem("token")); // Check token storage
+                setSuccess("Login successful!");
+                setError(null);
+            } else {
+                setError("Token not received.");
+            }
         } catch (err) {
             setError("Login failed. Please try again.");
             setSuccess(null);
-            alert("Login failed. Please try again.");
+            console.error("Error:", err);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
