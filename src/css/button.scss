@@ -1,0 +1,153 @@
+.button-search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+
+    .search-custom {
+        width: 18px;
+        height: 16px;
+        margin: 10px 9px;
+    }
+}
+
+.password-wrapper {
+    display: flex;
+    background-color: transparent;
+    position: relative;
+
+    .toggle-password-button {
+        position: absolute;
+        background-color: transparent;
+        border: none;
+        right: 0;
+        height: 38px;
+        font-weight: bold;
+
+        .eyeSlash-password,
+        .eye-password{
+            color: black;
+        }
+
+        &:hover {
+            .eyeSlash-password,
+            .eye-password {
+                color: red;
+                background-color: transparent;
+            }
+        }
+        :focus-visible {
+            border: none;
+            box-shadow: none;
+        }
+    }
+
+    .toggle-password-button:active,
+    .toggle-password-button.active,
+    .toggle-password-button.show {
+        background-color: transparent !important;
+        color: black !important;
+        border-color: transparent !important;
+    }
+}
+
+.button-delete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 9px;
+    margin: 0 0 0 5px;
+    border-color: #dee2e6;
+
+    .trash-custom {
+        width: 18px;
+        height: 16px;
+    }
+}
+
+.button-delete-1 {
+    align-items: center;
+    justify-content: center;
+    padding: 6px 9px;
+    margin: 0;
+    border-color: #dee2e6;
+
+    .trash-custom-1 {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.button-edit {
+    align-items: center;
+    justify-content: center;
+    padding: 6px 9px;
+    margin: 0;
+    border-color: #dee2e6;
+
+    .cancel-custom {
+        width: 18px;
+        height: 18px;
+    }
+
+    .edit-custom {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.button-shield {
+    align-items: center;
+    justify-content: center;
+    padding: 6px 9px;
+    margin: 0;
+    border-color: #dee2e6;
+    pointer-events: none;
+
+    .shield-custom {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.button-see {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px;
+    margin-left: 5px;
+    border-color: #dee2e6;
+
+    .eye-custom {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.button-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px;
+    margin: 0;
+    border-color: #dee2e6;
+
+    .check2-custom {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+.button-plus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    width: 38px;
+    height: 38px;
+
+    .pluslg-custom {
+        width: 24px;
+        height: 24px;
+    }
+}

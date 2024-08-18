@@ -1,0 +1,87 @@
+// Navbar.scss
+
+/* Style untuk Navbar */
+.bg-body-tertiary {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#dropdown-profil-navbar {
+    padding: 4px !important;
+    display: block;
+}
+
+#dropdown-profil-sidebar {
+    padding: 4px !important;
+    display: none;
+}
+
+/* Style untuk menu mobile */
+@media (max-width: 991px) {
+
+    // Menggunakan breakpoint Bootstrap untuk perangkat mobile
+    .navbar-expand-lg {
+        position: relative;
+    }
+
+    .navbar-collapse {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: fit-content;
+        max-width: 25vw;
+        padding: 1vh 2vw 0 1.1vw;
+
+
+        background-color: #fff; // Warna latar belakang menu
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3); // Bayangan untuk efek mengambang
+        transform: translateX(-25vw); // Sembunyikan menu di luar layar
+        transition: transform 0.3s ease; // Transisi halus
+        z-index: 1050; // Pastikan menu berada di atas konten lainnya
+    }
+
+    .navbar-collapse.show {
+        transform: translateX(0);
+    }
+
+    .navbar-toggler-icon{
+        background-size: 80%;
+    }
+
+    .navbar-toggler {
+        z-index: 1060;
+        height: 38px;
+        width: 38px;
+        padding: 0;
+        color: #212529;
+        background-color: none;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+
+        &:hover {
+            border: 1px solid #212529;
+        }
+
+        &:focus {
+            box-shadow: none;
+        }
+    }
+
+    #dropdown-profil-navbar {
+        padding: 4px !important;
+        display: none;
+    }
+
+    #dropdown-profil-sidebar {
+        padding: 4px !important;
+        margin-top: 12px;
+        display: block;
+    }
+
+    .search-bar {
+        margin: 3px 0 0 48px;
+    }
+}
