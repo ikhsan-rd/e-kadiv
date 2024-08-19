@@ -4,17 +4,28 @@ import axios from 'axios';
 
 function JadwalTable()
 {
-    // Data awal untuk testing
-    const [jadwalData,setJadwalData] = useState([
-        { id: 1,tanggalMulai: '2024-08-18',tanggalSelesai: '2024-08-18',kegiatan: 'Latihan',jamMulai: '12.00',jamSelesai: '13.00',lokasi: 'Gor',biaya: 5000 },
-        { id: 2,tanggalMulai: '2024-08-17',tanggalSelesai: '2024-08-17',kegiatan: 'Pertandingan',jamMulai: '10.00',jamSelesai: '12.00',lokasi: 'Lapangan',biaya: 10000 },
-        // Tambahkan data lainnya di sini
-    ]);
 
-    // Pengaturan untuk sorting
+    const [jadwalData,setJadwalData] = useState([]);
+
+    useEffect(() =>
+    {
+        fetchJadwalData();
+    },[]);
+
+    const fetchJadwalData = () =>
+    {
+        axios
+            .get("http://localhost:8000/api/jadwal")
+            .then((response) =>
+            {
+                setJadwalData(response.data.data);
+            })
+            .catch((error) => console.error("Error fetching data:",error));
+    };
+
     const [sortConfig,setSortConfig] = useState({ key: 'tanggalMulai',direction: 'desc' }); // Default sort by date descending
 
-    // Fungsi untuk sorting berdasarkan kolom yang diklik
+
     const handleSort = (key) =>
     {
         let direction = 'asc';
@@ -157,13 +168,13 @@ function JadwalTable()
                         {jadwalData.map((item,index) => (
                             <tr key={item.id}>
                                 <td className='text-center'>{index + 1}</td>
-                                <td className='text-center'>{item.tanggalMulai}</td>
-                                <td className='text-center'>{item.tanggalSelesai}</td>
+                                <td className='text-center'>{item.tgl_mulai}</td>
+                                <td className='text-center'>{item.tgl_selesai}</td>
                                 <td>{item.kegiatan}</td>
-                                <td className='text-center'>{item.jamMulai}</td>
-                                <td className='text-center'>{item.jamSelesai}</td>
-                                <td>{item.lokasi}</td>
-                                <td>Rp {item.biaya}</td>
+                                <td className='text-center'>{item.jam_mulai}</td>
+                                <td className='text-center'>{item.jam_selesai}</td>
+                                <td>{item.tempat}</td>
+                                <td>Rp {item.iuran}</td>
                             </tr>
                         ))}
                     </tbody>

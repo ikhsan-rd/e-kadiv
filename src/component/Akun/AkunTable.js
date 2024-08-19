@@ -1,55 +1,195 @@
-import React,{ useEffect,useState } from 'react';
-import { Table,Container,Form,Row,Col,Button } from 'react-bootstrap';
+import React,{ useEffect,useState,useRef,useCallback } from 'react';
+import { Table,Container,Form,Row,Col,Button,Spinner,Modal } from 'react-bootstrap';
+import { ShieldLock,Trash,PencilSquare,XLg,CheckLg } from 'react-bootstrap-icons';
 import '../../css/button.scss';
-import axios from "axios";
+import axios from 'axios';
+import AkunEdit from './AkunEdit';
+import { useNavigate } from 'react-router-dom';
 
 function AkunTable()
 {
-  const [akunData,setAkunData] = useState([]);
-  // const [filterDivisi,setFilterDivisi] = useState('');
-  // const [filterJabatan,setFilterJabatan] = useState('');
-  // const [filteredAkuns,setFilteredAkuns] = useState([]);
-  // const [searchTerm,setSearchTerm] = useState('');
-
   const currentJabatan = localStorage.getItem('jabatan');
+  const currentNomor = localStorage.getItem('nomor_anggota');
+  const navigate = useNavigate();
+
+  const [akunData,setAkunData] = useState([]);
+  const [showDeleteModal,setShowDeleteModal] = useState(false);
+  const [filterDivisi,setFilterDivisi] = useState('');
+  const [filterJabatan,setFilterJabatan] = useState('');
+  const [filteredAkuns,setFilteredAkuns] = useState([]);
+  const [searchTerm,setSearchTerm] = useState('');
+
+  const [deleteId,setDeleteId] = useState(null);
+  const [isEditing,setIsEditing] = useState(false);
+  const [editingRowId,setEditingRowId] = useState(null);
+  const [fotoFile,setFotoFile] = useState(null);
+  const [formData,setFormData] = useState({
+    nama: "",
+    nomor_anggota: "",
+    fe_password: "",
+    divisi: "",
+    jabatan: "",
+    foto: null,
+  });
+  const [loading,setLoading] = useState(false);
 
   useEffect(() =>
   {
     fetchAkunData();
   },[]);
 
+  useEffect(() =>
+  {
+    const filtered = akunData
+      .filter(item => (filterDivisi ? item.divisi === filterDivisi : true))
+      .filter(item => (filterJabatan ? item.jabatan === filterJabatan : true))
+      .filter(item => (searchTerm ? item.nama.toLowerCase().includes(searchTerm.toLowerCase()) || item.nomor_anggota.toLowerCase().includes(searchTerm.toLowerCase()) : true));
+
+    setFilteredAkuns(filtered);
+  },[filterDivisi,filterJabatan,searchTerm,akunData]);
+
   const fetchAkunData = async () =>
   {
+    const token = localStorage.getItem('token');
+    setLoading(true);
+
     try
     {
-      const response = await axios.get("http://localhost:8000/api/user");
+      const response = await axios.get('http://localhost:8000/api/user',{
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      console.log('Data fetched: ',response.data);
       setAkunData(response.data.data);
     } catch (error)
     {
-      console.error("Error fetching data:",error);
-      if (error.response)
+      console.error('Error fetching data:',error);
+      console.log(error.response);
+    } finally
+    {
+      setLoading(false);
+    }
+  };
+
+  const maskPassword = (password) =>
+  {
+    if (typeof password !== 'string')
+    {
+      console.error('Invalid password type:',typeof password);
+      return '';
+    }
+    if (password.length > 4)
+    {
+      const numberOfStars = password.length - 2;
+      return password.slice(0,1) + '*'.repeat(numberOfStars) + password.slice(-1);
+    }
+    return '*'.repeat(password.length);
+  };
+
+  const handleClearFilter = () =>
+  {
+    setFilterDivisi('');
+    setFilterJabatan('');
+    setSearchTerm('');
+  };
+
+  const handleEditClick = async (item) =>
+  { 
+    // if (item.foto)
+    // {
+    //   try
+    //   {
+    //     const response = await axios.get(item.foto,{
+    //       responseType: 'blob'
+    //     });
+
+    //     // Ambil tipe MIME dari response
+    //     const mimeType = response.data.type;
+
+    //     // Dapatkan ekstensi file berdasarkan tipe MIME
+    //     const extension = mimeType.split('/')[1]; // Ekstensi diambil dari bagian setelah slash, contoh: 'jpeg', 'png'
+
+    //     // Buat nama file dengan ekstensi yang sesuai
+    //     const fileName = `image.${extension}`;
+
+    //     // Buat objek File
+    //     const file = new File([response.data],fileName,{ type: mimeType });
+    //     setFotoFile(file);
+    //   } catch (error)
+    //   {
+    //     console.error('Error fetching the image file:',error);
+    //   }
+    // } else
+    // {
+    //   setFotoFile(null);
+    // }
+    // console.log(typeof (fotoFile));
+
+    setEditingRowId(item.id);
+    setFormData({
+      nama: item.nama,
+      nomor_anggota: item.nomor_anggota,
+      fe_password: item.fe_password,
+      divisi: item.divisi,
+      jabatan: item.jabatan,
+      // foto: item.foto,
+    });
+    setIsEditing(true);
+    console.log(typeof (fotoFile));
+  };
+
+
+  const handleCancelClick = () =>
+  {
+    setIsEditing(false);
+    setEditingRowId(null);
+    setFormData({
+      nama: "",
+      nomor_anggota: "",
+      fe_password: "",
+      divisi: "",
+      jabatan: "",
+      // foto: null,
+    });
+  };
+
+  const handleDelete = async () =>
+  {
+    if (deleteId)
+    {
+      handleCloseModalDelete();
+      try
       {
-        console.error("Response data:",error.response.data);
+        await axios.delete(`http://localhost:8000/api/user/${deleteId}`,{
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        setTimeout(() =>
+        {
+          navigate("/database/akun/table");
+        },100);
+      } catch (err)
+      {
+        console.error("Delete failed:",err);
       }
     }
   };
 
-  // useEffect(() =>
-  // {
-  //   const filtered = akunData
-  //     .filter(item => (filterDivisi ? item.divisi === filterDivisi : true))
-  //     .filter(item => (filterJabatan ? item.jabatan === filterJabatan : true))
-  //     .filter(item => (searchTerm ? item.nama.toLowerCase().includes(searchTerm.toLowerCase()) || item.id.toLowerCase().includes(searchTerm.toLowerCase()) : true));
+  const handleDeleteConfirmation = (id) =>
+  {
+    setDeleteId(id);
+    setShowDeleteModal(true);
+  };
 
-  //   setFilteredAkuns(filtered);
-  // },[filterDivisi,filterJabatan,searchTerm,akunData]);
+  const handleCloseModalDelete = () =>
+  {
+    setDeleteId(null);
+    setShowDeleteModal(false);
+  };
 
-  // const handleClearFilter = () =>
-  // {
-  //   setFilterDivisi('');
-  //   setFilterJabatan('');
-  //   setSearchTerm(''); // Tambahkan ini untuk menghapus searchTerm juga
-  // };
 
   return (
     <Container>
@@ -58,7 +198,8 @@ function AkunTable()
         <Row style={{ marginBottom: '10px' }}>
           <Form.Group as={Col} md={2} controlId="filterDivisi">
             <Form.Select
-            // value={filterDivisi} onChange={e => setFilterDivisi(e.target.value)}
+              value={filterDivisi}
+              onChange={e => setFilterDivisi(e.target.value)}
             >
               <option value="">Divisi</option>
               <option value="Sepak Bola">Sepak Bola</option>
@@ -70,7 +211,8 @@ function AkunTable()
           </Form.Group>
           <Form.Group as={Col} md={2} controlId="filterJabatan">
             <Form.Select
-            // value={filterJabatan} onChange={e => setFilterJabatan(e.target.value)}
+              value={filterJabatan}
+              onChange={e => setFilterJabatan(e.target.value)}
             >
               <option value="">Jabatan</option>
               <option value="Puspendiv">Puspendiv</option>
@@ -82,14 +224,14 @@ function AkunTable()
             <Form.Control
               type="text"
               placeholder="Search"
-            // value={searchTerm}
-            // onChange={e => setSearchTerm(e.target.value)}
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
             />
           </Form.Group>
           <Form.Group as={Col} md={2}>
             <Button
-            // onClick={handleClearFilter}
-            // disabled={!filterDivisi && !filterJabatan && !searchTerm}
+              onClick={handleClearFilter}
+              disabled={!filterDivisi && !filterJabatan && !searchTerm}
             >
               Clear All
             </Button>
@@ -104,34 +246,115 @@ function AkunTable()
               <th>Password</th>
               <th>Divisi</th>
               <th>Jabatan</th>
-              <th>Foto</th>
+              {/* <th>Foto</th> */}
               <th>Last Sign In</th>
+              {(currentJabatan === 'Admin' || currentJabatan === 'Puspendiv') && (
+                <th>Action</th>
+              )}
             </tr>
           </thead>
           <tbody>
-            {/* {filteredAkuns.map((item,index) => ( */}
-            {akunData.map((item,index) => (
-              <tr key={item.id}>
-                <td className='text-center'>{index + 1}</td>
-                <td>{item.nama}</td>
-                <td>{item.id}</td>
-                <td>{item.fe_password}</td>
-                <td>{item.divisi}</td>
-                <td>{item.jabatan}</td>
-                <td>
-                  {item.foto ? (
-                    <img src={item.foto} alt="Foto" style={{ maxWidth: '100px',maxHeight: '100px' }} />
-                  ) : (
-                    'No Photo'
-                  )}
+            {loading ? (
+              <tr>
+                <td colSpan="8" className="text-center">
+                  <Spinner animation="border" />
                 </td>
-                <td>{item.lastSignInTime ? item.lastSignInTime : 'N/A'}</td>
               </tr>
-            ))}
-            {/* ))} */}
+            ) : filteredAkuns.length > 0 ? (
+              filteredAkuns.map((item,index) => (
+                <tr key={item.id}>
+                  <td className='text-center'>{index + 1}</td>
+                  <td>{item.nama}</td>
+                  <td>{item.nomor_anggota}</td>
+                  <td>{maskPassword(item.fe_password)}</td>
+                  <td>{item.divisi}</td>
+                  <td>{item.jabatan}</td>
+                  {/* <td>
+                    {item.foto ? (
+                      <img src={item.foto} alt="Foto" style={{ maxWidth: '60px',maxHeight: '60px' }} />
+                    ) : (
+                      'No Photo'
+                    )}
+                  </td> */}
+                  <td>{item.last_sign_in ? item.last_sign_in : 'N/A'}</td>
+                  {(currentJabatan === 'Admin' || currentJabatan === 'Puspendiv') && (
+                    <td className='text-center'>
+                      <Button
+                        className='button-edit'
+                        variant='success'
+                        onClick={() => handleEditClick(item)}
+                      >
+                        <PencilSquare className='edit-custom' />
+                      </Button>
+                      {(item.nomor_anggota !== currentNomor) && (
+                        <Button
+                          className='button-delete-1'
+                          variant='danger'
+                          onClick={() => handleDeleteConfirmation(item.id)}
+                        >
+                          <Trash className='trash-custom-1' />
+                        </Button>
+                      )}
+                      {(item.nomor_anggota === currentNomor) && (
+                        <Button
+                          className='button-shield'
+                          variant='warning'
+                          style={{ cursor: 'not-allowed' }}
+                        >
+                          <ShieldLock className='shield-custom' />
+                        </Button>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="8" className="text-center">
+                  No data available
+                </td>
+              </tr>
+            )}
           </tbody>
         </Table>
       </Form>
+
+      <Modal show={isEditing} onHide={handleCancelClick}>
+        <AkunEdit
+          formData={formData}
+          setFormData={setFormData}
+          handleCancelClick={handleCancelClick}
+          loading={loading}
+          setLoading={setLoading}
+          editingRowId={editingRowId}
+        />
+      </Modal>
+
+      <Modal show={showDeleteModal} onHide={handleCloseModalDelete}
+        style={{
+          position: 'fixed',
+          marginTop: '10vh',
+          marginRight: '2px'
+        }}>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Apakah Anda yakin ingin menghapus akun ini?</Modal.Body>
+        <Modal.Footer
+          style={
+            {
+              display: 'flex',
+              justifyContent: 'center'
+            }
+          }>
+          <Button variant="danger" onClick={handleCloseModalDelete}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleDelete}>
+            {loading ? 'Loading...' : 'Delete'}
+          </Button>
+        </Modal.Footer>
+      </Modal >
     </Container>
   );
 }

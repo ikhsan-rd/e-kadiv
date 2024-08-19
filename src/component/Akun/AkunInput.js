@@ -1,14 +1,15 @@
 import "../../css/button.scss";
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import { Row, Form, Col, Button, Container, Modal } from "react-bootstrap";
-import { Eye, EyeSlash } from "react-bootstrap-icons";
+import React,{ useState,useCallback,useEffect,useRef } from "react";
+import { Row,Form,Col,Button,Container,Modal } from "react-bootstrap";
+import { Eye,EyeSlash } from "react-bootstrap-icons";
 import axios from "axios";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../ComponentCustom/cropImage";
 import { useNavigate } from "react-router-dom";
 
-const AkunInput = () => {
-    const [formData, setFormData] = useState({
+const AkunInput = () =>
+{
+    const [formData,setFormData] = useState({
         nomor_anggota: "",
         nama: "",
         fe_password: "",
@@ -17,40 +18,39 @@ const AkunInput = () => {
         foto: null,
     });
 
-    const [passwordVisible, setPasswordVisible] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(null);
-    const [error, setError] = useState(null);
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedArea, setCroppedArea] = useState(null);
-    const [imageSrc, setImageSrc] = useState(null);
-    const [showCropper, setShowCropper] = useState(false);
-    const [imageFile, setImageFile] = useState(null);
+    const [passwordVisible,setPasswordVisible] = useState(false);
+    const [loading,setLoading] = useState(false);
+    const [success,setSuccess] = useState(null);
+    const [error,setError] = useState(null);
     const navigate = useNavigate();
 
+
+    const [crop,setCrop] = useState({ x: 0,y: 0 });
+    const [zoom,setZoom] = useState(1);
+    const [croppedArea,setCroppedArea] = useState(null);
+    const [imageSrc,setImageSrc] = useState(null);
+    const [showCropper,setShowCropper] = useState(false);
+    const [imageFile,setImageFile] = useState(null);
     const fileInputRef = useRef(null);
 
-    // Handle form field changes
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    // };
-
-    const handleChange = (e) => {
-        const { name, value, type, files } = e.target;
+    const handleChange = (e) =>
+    {
+        const { name,value,type,files } = e.target;
         setFormData((prevData) => ({
             ...prevData,
-            [name]: type === "file" ? files[0] : value, // Handle file input
+            [name]: type === "file" ? files[0] : value,
         }));
     };
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         let newDivisi = formData.divisi;
 
-        if (formData.jabatan === "Puspendiv") {
+        if (formData.jabatan === "Puspendiv")
+        {
             newDivisi = "-";
-        } else if (newDivisi === "-") {
+        } else if (newDivisi === "-")
+        {
             newDivisi = "";
         }
 
@@ -58,20 +58,24 @@ const AkunInput = () => {
             ...prevState,
             divisi: newDivisi,
         }));
-    }, [formData.jabatan, formData.divisi]);
+    },[formData.jabatan,formData.divisi]);
 
     const onCropComplete = useCallback(
-        (croppedAreaPercentage, croppedAreaPixels) => {
+        (croppedAreaPercentage,croppedAreaPixels) =>
+        {
             setCroppedArea(croppedAreaPixels);
         },
         []
     );
 
-    const handleImageChange = async (e) => {
+    const handleImageChange = async (e) =>
+    {
         const file = e.target.files[0];
-        if (file) {
+        if (file)
+        {
             const reader = new FileReader();
-            reader.onloadend = () => {
+            reader.onloadend = () =>
+            {
                 setImageSrc(reader.result);
                 setShowCropper(true);
             };
@@ -79,47 +83,101 @@ const AkunInput = () => {
         }
     };
 
-    const handleCrop = async () => {
-        if (croppedArea) {
-            const croppedBlob = await getCroppedImg(imageSrc, croppedArea);
+    const handleCrop = async () =>
+    {
+        if (croppedArea)
+        {
+            const croppedBlob = await getCroppedImg(imageSrc,croppedArea);
             setImageFile(croppedBlob);
             setShowCropper(false);
         }
     };
 
-    const togglePasswordVisibility = () => {
+    const handleCloseCrop = () =>
+    {
+        setShowCropper(false);
+        setImageSrc(null);
+        setCroppedArea(null);
+        if (fileInputRef.current)
+        {
+            fileInputRef.current.value = "";
+        }
+    };
+
+    const togglePasswordVisibility = () =>
+    {
         setPasswordVisible(!passwordVisible);
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e) =>
+    {
         e.preventDefault();
         setLoading(true);
 
         const data = new FormData();
-        Object.keys(formData).forEach((key) => {
-            data.append(key, formData[key]);
+        Object.keys(formData).forEach((key) =>
+        {
+            data.append(key,formData[key]);
         });
 
-        try {
+        if (imageFile)
+        {
+            data.append('foto',imageFile,formData.nomor_anggota);
+        }
+
+        console.log('Form Data Entries:');
+        for (let pair of data.entries())
+        {
+            const [key,value] = pair;
+            let valueType = typeof value;
+
+            // Check if value is a File object
+            if (value instanceof File)
+            {
+                valueType = 'File';
+            }
+
+            console.log(`${key}: ${value} (Type: ${valueType})`);
+        }
+
+        try
+        {
             // Fetch the CSRF token
-            await axios.get("http://localhost:8000/sanctum/csrf-cookie", {
+            await axios.get("http://localhost:8000/sanctum/csrf-cookie",{
                 withCredentials: true,
             });
 
-            // Then make the registration request
-            await axios.post("http://localhost:8000/api/register", data, {
+            // add akun request
+            await axios.post("http://localhost:8000/api/register",data,{
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
-                withCredentials: true, // This ensures the CSRF token is sent
+                withCredentials: true,
             });
+
             setSuccess("Registration successful!");
             setError(null);
-            alert("Registration successful! Redirecting to Jadwal...");
-            setTimeout(() => {
-                navigate("/login");
-            }, 100);
-        } catch (err) {
+            alert("Registration successful!");
+
+            // Clear form and image data after successful submission
+            setFormData({
+                nomor_anggota: "",
+                nama: "",
+                fe_password: "",
+                jabatan: "",
+                divisi: "",
+                foto: null,
+            });
+            setImageSrc(null);
+            setImageFile(null);
+
+            if (fileInputRef.current)
+            {
+                fileInputRef.current.value = "";
+            }
+
+        } catch (err)
+        {
             setError("Registration failed. Please try again.");
             setSuccess(null);
             alert("Registration failed. Please try again.");
@@ -234,11 +292,10 @@ const AkunInput = () => {
                         <Form.Label>Foto</Form.Label>
                         <Form.Control
                             type="file"
-                            // accept="image/*"
                             name="foto"
-                            onChange={handleChange}
-                            // ref={fileInputRef}
+                            onChange={handleImageChange}
                             required
+                            ref={fileInputRef}
                         />
                     </Form.Group>
                 </Row>
@@ -246,13 +303,13 @@ const AkunInput = () => {
                     variant="primary"
                     type="submit"
                     disabled={loading}
-                    style={{ width: "30%", margin: "5px 35% 0 35%" }}
+                    style={{ width: "30%",margin: "5px 35% 0 35%" }}
                 >
                     {loading ? "Menambahkan..." : "Tambah Akun"}
                 </Button>
             </Form>
 
-            {/* <Modal
+            <Modal
                 show={showCropper}
                 onHide={() => setShowCropper(false)}
                 centered
@@ -261,38 +318,35 @@ const AkunInput = () => {
                     <Modal.Title>Crop Foto</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {imageSrc && (
-                        <div
-                            style={{
-                                position: "relative",
-                                width: "100%",
-                                height: 400,
-                            }}
-                        >
+                    <div
+                        style={{
+                            position: "relative",
+                            width: "100%",
+                            height: "400px",
+                        }}
+                    >
+                        {imageSrc && (
                             <Cropper
                                 image={imageSrc}
                                 crop={crop}
                                 zoom={zoom}
-                                aspect={4 / 4}
+                                aspect={1}
                                 onCropChange={setCrop}
                                 onZoomChange={setZoom}
                                 onCropComplete={onCropComplete}
                             />
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button
-                        variant="secondary"
-                        onClick={() => setShowCropper(false)}
-                    >
-                        Tutup
+                    <Button variant="secondary" onClick={handleCloseCrop}>
+                        Close
                     </Button>
                     <Button variant="primary" onClick={handleCrop}>
                         Crop
                     </Button>
                 </Modal.Footer>
-            </Modal> */}
+            </Modal>
         </Container>
     );
 };

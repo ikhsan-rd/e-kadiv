@@ -96,6 +96,15 @@
     }
 }
 
+.edit-custom-2 {
+    width: 18px;
+    height: 18px;
+
+    &:hover{
+        color: blue;
+    }
+}
+
 .button-shield {
     align-items: center;
     justify-content: center;
