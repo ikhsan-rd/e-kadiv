@@ -1,31 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Nav } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React,{ useState,useEffect } from 'react';
+import { Container,Nav } from 'react-bootstrap';
+import { useLocation,useNavigate } from 'react-router-dom';
 
 import DanaKeluarInput from './DanaKeluarInput';
 import DanaMasukInput from './DanaMasukInput';
 import DanaRekap from './DanaRekap';
 
-function DanaForm() {
+function DanaForm()
+{
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeItem, setActiveItem] = useState('');
+  const [activeItem,setActiveItem] = useState('');
   const [loading,setLoading] = useState(false);
 
   const currentJabatan = localStorage.getItem('jabatan');
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     const pathParts = location.pathname.split('/');
     const lastPart = pathParts[pathParts.length - 1];
     setActiveItem(lastPart);
-  }, [location.pathname]);
+  },[location.pathname]);
 
-  const handleNavItemClick = (path) => {
+  const nowPath = location.pathname;
+  useEffect(() =>
+  {
+    if (nowPath === '/keuangan')
+    {
+      navigate(`/keuangan/rekap`);
+    }
+  },[nowPath,navigate]);
+
+  const handleNavItemClick = (path) =>
+  {
     setActiveItem(path);
     navigate(`/keuangan/${path}`);
   };
 
-  if (loading) {
+  if (loading)
+  {
     return <div>Loading...</div>;
   }
 

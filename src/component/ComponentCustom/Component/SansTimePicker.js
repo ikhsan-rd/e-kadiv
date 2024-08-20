@@ -1,7 +1,7 @@
 import React,{ useState,useRef,useEffect } from 'react';
 import { FormControl } from 'react-bootstrap';
 
-const TimePickerCustom = ({ format = '24h',value,onChange }) =>
+const SansTimePicker = ({ format = '24h',value,onChange }) =>
 {
     const [showOptions,setShowOptions] = useState(false);
     const [selectedHour,setSelectedHour] = useState(null);
@@ -203,4 +203,4 @@ const TimePickerCustom = ({ format = '24h',value,onChange }) =>
     );
 };
 
-export default TimePickerCustom;
+export default SansTimePicker;

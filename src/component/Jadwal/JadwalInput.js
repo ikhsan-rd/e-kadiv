@@ -1,9 +1,8 @@
 import React,{ useState,useRef } from 'react';
 import { Container,Form,Button,Row,Col,InputGroup } from 'react-bootstrap';
 import { Trash } from 'react-bootstrap-icons';
-import TimePickerCustom from '../ComponentCustom/TimePickerCustom';
 import '../../css/button.scss';
-import DayCheckBoxCustom from '../ComponentCustom/DayCheckBoxCustom';
+import { SansDayCheckBox, SansTimePicker } from '../ComponentCustom/SansComps';
 import DateTimePicker from 'react-datetime-picker';
 
 function JadwalInput()
@@ -223,7 +222,7 @@ function JadwalInput()
                             </Form.Group>
                             <Form.Group as={Col} md={2} controlId="hari">
                                 <Form.Label>Hari</Form.Label>
-                                <DayCheckBoxCustom
+                                <SansDayCheckBox
                                     value={dayCheckbox}
                                     onChange={handleDayCheckboxChange}
                                 />
@@ -275,7 +274,7 @@ function JadwalInput()
                             <Form.Group as={Col} md={2} controlId="jamMulai">
                                 <Form.Label>Jam Mulai</Form.Label>
                                 <Form.Group style={{ display: 'flex' }}>
-                                    <TimePickerCustom
+                                    <SansTimePicker
                                         value={startTime}
                                         format="24h"
                                         onChange={handleChangeStartTime}
@@ -290,7 +289,7 @@ function JadwalInput()
                             <Form.Group as={Col} md={2} controlId="jamSelesai">
                                 <Form.Label>Jam Selesai</Form.Label>
                                 <Form.Group style={{ display: 'flex' }}>
-                                    <TimePickerCustom
+                                    <SansTimePicker
                                         value={endTime}
                                         format="24h"
                                         onChange={handleChangeEndTime}

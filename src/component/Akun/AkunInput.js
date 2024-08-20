@@ -4,7 +4,7 @@ import { Row,Form,Col,Button,Container,Modal } from "react-bootstrap";
 import { Eye,EyeSlash } from "react-bootstrap-icons";
 import axios from "axios";
 import Cropper from "react-easy-crop";
-import getCroppedImg from "../ComponentCustom/cropImage";
+import {SansCropImage} from "../ComponentCustom/SansComps";
 import { useNavigate } from "react-router-dom";
 
 const AkunInput = () =>
@@ -87,7 +87,7 @@ const AkunInput = () =>
     {
         if (croppedArea)
         {
-            const croppedBlob = await getCroppedImg(imageSrc,croppedArea);
+            const croppedBlob = await SansCropImage(imageSrc,croppedArea);
             setImageFile(croppedBlob);
             setShowCropper(false);
         }

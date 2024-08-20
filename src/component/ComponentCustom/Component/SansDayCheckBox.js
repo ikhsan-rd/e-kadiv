@@ -1,7 +1,7 @@
 import React,{ useState,useRef,useEffect } from 'react';
 import { FormControl,Form } from 'react-bootstrap';
 
-const DayCheckBoxCustom = ({ value,onChange }) =>
+const SansDayCheckBox = ({ value,onChange }) =>
 {
     const [showOptions,setShowOptions] = useState(false);
     const [selectedDays,setSelectedDays] = useState({
@@ -117,4 +117,4 @@ const DayCheckBoxCustom = ({ value,onChange }) =>
     );
 };
 
-export default DayCheckBoxCustom;
+export default SansDayCheckBox;

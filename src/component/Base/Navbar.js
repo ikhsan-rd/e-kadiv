@@ -161,7 +161,7 @@ function NavigationBar()
                   <Nav.Link as={Link} to="/database/presensi/input">Presensi</Nav.Link>
                 )}
                 {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
-                  <Nav.Link as={Link} to="/keuangan/input">Keuangan</Nav.Link>
+                  <Nav.Link as={Link} to="/keuangan/rekap">Keuangan</Nav.Link>
                 )}
                 <NavDropdown title="Performa" align={{ lg: 'end' }} id="dropdown-menu-align-responsive-2">
                   <NavDropdown.Item as={Link} to="/performa/divisi">Divisi</NavDropdown.Item>
@@ -171,7 +171,7 @@ function NavigationBar()
 
                 <NavDropdown title="Database" align={{ lg: 'end' }} id="dropdown-menu-align-responsive-3">
                   <NavDropdown.Item as={Link} to="/database/presensi/table">Presensi</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/database/team/table">Team</NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/database/team/atlet/table">Team</NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/database/jadwal/table">Jadwal</NavDropdown.Item>
                   <NavDropdown.Item as={Link} to="/database/sarana/table">Sarana</NavDropdown.Item>
                   {(currentJabatan !== 'Pelatih') && (

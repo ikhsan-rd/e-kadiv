@@ -20,6 +20,15 @@ function PresensiForm()
         const lastPart = pathParts[pathParts.length - 1];
         setActiveItem(lastPart);
     },[location.pathname]);
+    
+    const nowPath = location.pathname;
+    useEffect(() =>
+    {
+        if (nowPath === '/database/peresnsi')
+        {
+            navigate(`/database/presensi/table`);
+        }
+    },[nowPath,navigate]);
 
     const handleNavItemClick = (path) =>
     {

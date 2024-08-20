@@ -1,10 +1,11 @@
-import React,{ useEffect,useState,useRef,useCallback } from 'react';
+import React,{ useEffect,useState} from 'react';
 import { Table,Container,Form,Row,Col,Button,Spinner,Modal } from 'react-bootstrap';
-import { ShieldLock,Trash,PencilSquare,XLg,CheckLg } from 'react-bootstrap-icons';
+import { ShieldLock,Trash,PencilSquare } from 'react-bootstrap-icons';
 import '../../css/button.scss';
 import axios from 'axios';
 import AkunEdit from './AkunEdit';
 import { useNavigate } from 'react-router-dom';
+import { SansLoadOrNotImage,SansDeleteModal } from '../ComponentCustom/SansComps';
 
 function AkunTable()
 {
@@ -13,13 +14,15 @@ function AkunTable()
   const navigate = useNavigate();
 
   const [akunData,setAkunData] = useState([]);
-  const [showDeleteModal,setShowDeleteModal] = useState(false);
+
   const [filterDivisi,setFilterDivisi] = useState('');
   const [filterJabatan,setFilterJabatan] = useState('');
   const [filteredAkuns,setFilteredAkuns] = useState([]);
   const [searchTerm,setSearchTerm] = useState('');
 
   const [deleteId,setDeleteId] = useState(null);
+  const [showDeleteModal,setShowDeleteModal] = useState(false);
+
   const [isEditing,setIsEditing] = useState(false);
   const [editingRowId,setEditingRowId] = useState(null);
   const [fotoFile,setFotoFile] = useState(null);
@@ -95,7 +98,7 @@ function AkunTable()
   };
 
   const handleEditClick = async (item) =>
-  { 
+  {
     if (item.foto)
     {
       try
@@ -270,11 +273,13 @@ function AkunTable()
                   <td>{item.divisi}</td>
                   <td>{item.jabatan}</td>
                   <td>
-                    {item.foto ? (
-                      <img src={item.foto} alt="Foto" style={{ maxWidth: '60px',maxHeight: '60px' }} />
-                    ) : (
-                      'No Photo'
-                    )}
+                    <SansLoadOrNotImage
+                      src={item.foto}
+                      width="50px"
+                      height="50px"
+                      shape="square"
+                      onError={() => console.log('Gambar gagal dimuat')}
+                    />
                   </td>
                   <td>{item.last_sign_in ? item.last_sign_in : 'N/A'}</td>
                   {(currentJabatan === 'Admin' || currentJabatan === 'Puspendiv') && (
@@ -330,31 +335,13 @@ function AkunTable()
         />
       </Modal>
 
-      <Modal show={showDeleteModal} onHide={handleCloseModalDelete}
-        style={{
-          position: 'fixed',
-          marginTop: '10vh',
-          marginRight: '2px'
-        }}>
-        <Modal.Header closeButton>
-          <Modal.Title>Delete</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Apakah Anda yakin ingin menghapus akun ini?</Modal.Body>
-        <Modal.Footer
-          style={
-            {
-              display: 'flex',
-              justifyContent: 'center'
-            }
-          }>
-          <Button variant="danger" onClick={handleCloseModalDelete}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleDelete}>
-            {loading ? 'Loading...' : 'Delete'}
-          </Button>
-        </Modal.Footer>
-      </Modal >
+      <SansDeleteModal
+        show={showDeleteModal}
+        onHide={handleCloseModalDelete}
+        onDelete={handleDelete}
+        loading={loading}
+        bodyText="Hapus data akun ini?"
+      />
     </Container>
   );
 }

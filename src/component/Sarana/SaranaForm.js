@@ -21,6 +21,15 @@ function SaranaForm()
         setActiveItem(lastPart);
     },[location.pathname]);
 
+    const nowPath = location.pathname;
+    useEffect(() =>
+    {
+        if (nowPath === '/database/sarana')
+        {
+            navigate(`/database/sarana/table`);
+        }
+    },[nowPath,navigate]);
+
     const handleNavItemClick = (path) =>
     {
         setActiveItem(path);
