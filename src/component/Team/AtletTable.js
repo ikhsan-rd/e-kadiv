@@ -1,7 +1,7 @@
 import '../../css/inputdatabase.scss';
 import React,{ useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container,Form,Row,Col,Table,Button } from 'react-bootstrap';
+import { Container,Form,Row,Col,Table,Button,Modal } from 'react-bootstrap';
 import axios from 'axios';
 import
 {
@@ -14,16 +14,18 @@ import
     SansSortableTable,
     SansDeleteModal
 } from '../ComponentCustom/SansComps';
+import AtletEdit from './AtletEdit';
 
 function AtletTable()
 {
     const currentJabatan = localStorage.getItem('jabatan');
 
-    const [tableData,setTableData] = useState([]);
-    const [divisiList,setDivisiList] = useState([]);
     const [loading,setLoading] = useState(false);
     const navigate = useNavigate();
-
+    
+    //Fetch
+    const [tableData,setTableData] = useState([]);
+    const [divisiList,setDivisiList] = useState([]);
     useEffect(() =>
     {
         fetchTableData();
@@ -67,6 +69,7 @@ function AtletTable()
         return isFirstHalfOfYear ? currentSemester : currentSemester + 1;
     };
 
+    //Filter, Sort, Search
     const { sortedData,requestSort,getSortIcon } = SansSortableTable(tableData);
 
     const [filter,setFilter] = useState('');
@@ -99,6 +102,99 @@ function AtletTable()
         requestSort('');
     };
 
+    // Edit
+    const [isEditing,setIsEditing] = useState(false);
+    const [editingRowId,setEditingRowId] = useState(null);
+    const [fotoFile,setFotoFile] = useState(null);
+    const [formData,setFormData] = useState({
+        nama: "",
+        jk: "",
+        tempat_lahir: "",
+        tgl_lahir: "",
+        wa: "",
+        divisi: "",
+        kategori: "",
+        status_anggota: "",
+        foto: null,
+    });
+
+    const handleEditClick = async (item) =>
+    {
+        if (item.foto)
+        {
+            try
+            {
+                const response = await axios.get(item.foto,{
+                    responseType: 'blob'
+                });
+
+                // Ambil tipe MIME dari response
+                const mimeType = response.data.type;
+
+                // Dapatkan ekstensi file berdasarkan tipe MIME
+                const extension = mimeType.split('/')[1]; // Ekstensi diambil dari bagian setelah slash, contoh: 'jpeg', 'png'
+
+                // Buat nama file dengan ekstensi yang sesuai
+                const fileName = `image.${extension}`;
+
+                // Buat objek File
+                const file = new File([response.data],fileName,{ type: mimeType });
+                setFotoFile(file);
+            } catch (error)
+            {
+                console.error('Error fetching the image file:',error);
+            }
+        } else
+        {
+            setFotoFile(null);
+        }
+        console.log(typeof (fotoFile));
+
+        setEditingRowId(item.id);
+        setFormData({
+            nama: item.nama,
+            npm: item.npm,
+            jk: item.jk,
+            tempat_lahir: item.tempat_lahir,
+            tgl_lahir: item.tgl_lahir,
+            angkatan: item.angkatan,
+            jurusan: item.jurusan,
+            wa: item.wa,
+            divisi: item.divisi,
+            kategori: item.kategori,
+            status_mhs: item.status_mhs,
+            status_anggota: item.status_anggota,
+            foto: item.foto,
+            ktm_sia: item.ktm_sia,
+        });
+        setIsEditing(true);
+        console.log(typeof (fotoFile));
+    };
+
+
+    const handleCancelClick = () =>
+    {
+        setIsEditing(false);
+        setEditingRowId(null);
+        setFormData({
+            nama: "",
+            npm: "",
+            jk: "",
+            tempat_lahir: "",
+            tgl_lahir: "",
+            angkatan: "",
+            jurusan: "",
+            wa: "",
+            divisi: "",
+            kategori: "",
+            status_mhs: "",
+            status_anggota: "",
+            ktm_sia: null,
+            foto: null,
+        });
+    };
+
+    //Delete
     const [deleteId,setDeleteId] = useState(null);
     const [showDeleteModal,setShowDeleteModal] = useState(false);
     const handleDelete = async () =>
@@ -233,6 +329,16 @@ function AtletTable()
                     </tbody>
                 </Table>
             </Form>
+
+            <Modal show={isEditing} onHide={handleCancelClick}>
+                <AtletEdit
+                    formData={formData}
+                    setFormData={setFormData}
+                    loading={loading}
+                    setLoading={setLoading}
+                    editingRowId={editingRowId}
+                />
+            </Modal>
 
             <SansDeleteModal
                 show={showDeleteModal}

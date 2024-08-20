@@ -133,17 +133,13 @@ function AtletInput()
             <Form style={{ marginTop: '15px' }}>
                 <h2>Tambah Atlet</h2>
                 <Row style={{ marginBottom: '15px' }}>
-                    <Form.Group as={Col} md={4} controlId="nama">
+                    <Form.Group as={Col} md={3} controlId="nama">
                         <Form.Label>Nama</Form.Label>
                         <Form.Control type="text" placeholder="Masukkan nama" />
                     </Form.Group>
-                    <Form.Group as={Col} md={2} controlId="jeniskelamin">
-                        <Form.Label>Jenis Kelamin</Form.Label>
-                        <Form.Select defaultValue="Pilih">
-                            <option value="">Pilih</option>
-                            <option>Laki-laki</option>
-                            <option>Perempuan</option>
-                        </Form.Select>
+                    <Form.Group as={Col} md={3} controlId="tempat_lahir">
+                        <Form.Label>Tempat Lahir</Form.Label>
+                        <Form.Control type="text" placeholder="Tempat Lahir" />
                     </Form.Group>
                     <Form.Group as={Col} md={3} controlId="tanggalLahir" >
                         <Form.Label>Tanggal Lahir</Form.Label>
@@ -173,15 +169,23 @@ function AtletInput()
                                 ref={fotoInputRef}
                             />
                             {foto !== null && (
-                                    <Button variant="primary" onClick={handleCekFoto} className='button-see' >
-                                        <Eye className='eye-custom' />
-                                    </Button>
+                                <Button variant="primary" onClick={handleCekFoto} className='button-see' >
+                                    <Eye className='eye-custom' />
+                                </Button>
                             )}
                         </Form.Group>
                     </Form.Group>
                 </Row>
                 <Row style={{ marginBottom: '15px' }}>
-                    <Form.Group as={Col} md={3} controlId="npm">
+                    <Form.Group as={Col} md={2} controlId="jeniskelamin">
+                        <Form.Label>Jenis Kelamin</Form.Label>
+                        <Form.Select defaultValue="Pilih">
+                            <option value="">Pilih</option>
+                            <option>Laki-laki</option>
+                            <option>Perempuan</option>
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group as={Col} md={2} controlId="npm">
                         <Form.Label>NPM</Form.Label>
                         <Form.Control
                             type="text"
@@ -197,13 +201,13 @@ function AtletInput()
                             type="text"
                             value={tahunAngkatan}
                             disabled={true}
-                            style={{backgroundColor:'#fff'}}
+                            style={{ backgroundColor: '#fff' }}
                         />
                     </Form.Group>
-                    <Form.Group as={Col} md={3} controlId="jurusan">
+                    <Form.Group as={Col} md={2} controlId="jurusan">
                         <Form.Label>Jurusan</Form.Label>
                         <Form.Select as="select">
-                            <option value="">Pilih jurusan</option>
+                            <option value="">Pilih</option>
                             <option value="jurusan1">Jurusan 1</option>
                             <option value="jurusan2">Jurusan 2</option>
                             <option value="jurusan3">Jurusan 3</option>
@@ -227,9 +231,9 @@ function AtletInput()
                                 ref={pengenalInputRef}
                             />
                             {pengenal !== null && (
-                                    <Button variant="primary" onClick={handleCekPengenal} className='button-see'>
-                                        <Eye className='eye-custom' />
-                                    </Button>
+                                <Button variant="primary" onClick={handleCekPengenal} className='button-see'>
+                                    <Eye className='eye-custom' />
+                                </Button>
                             )}
                         </Form.Group>
                     </Form.Group>
@@ -270,6 +274,7 @@ function AtletInput()
                             <option value="tidak-aktif">Non-Anggota</option>
                         </Form.Select>
                     </Form.Group>
+
                 </Row>
                 <Button variant="primary" type="submit" style={
                     {
@@ -291,10 +296,10 @@ function AtletInput()
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="danger" onClick={handleHapusFoto} className='button-delete' style={{ marginRight: '5px' }}>
-                        <Trash className='trash-custom'/>
+                        <Trash className='trash-custom' />
                     </Button>
                     <Button variant="success" onClick={handleCloseModalFoto} className='button-check'>
-                        <Check2 className='check2-custom'/>
+                        <Check2 className='check2-custom' />
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -307,7 +312,7 @@ function AtletInput()
                     <iframe src={`${pengenal}#toolbar=0`} alt="Pengenal" style={{ minHeight: '60vh',maxHeight: '60vh',maxWidth: '100%',objectFit: 'contain' }} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="danger" onClick={handleHapusPengenal} className='button-delete' style={{marginRight:'5px'}}>
+                    <Button variant="danger" onClick={handleHapusPengenal} className='button-delete' style={{ marginRight: '5px' }}>
                         <Trash className='trash-custom' />
                     </Button>
                     <Button variant="success" onClick={handleCloseModalPengenal} className='button-check'>

@@ -1,4 +1,4 @@
-import React,{ useEffect,useState} from 'react';
+import React,{ useEffect,useState } from 'react';
 import { Table,Container,Form,Row,Col,Button,Spinner,Modal } from 'react-bootstrap';
 import { ShieldLock,Trash,PencilSquare } from 'react-bootstrap-icons';
 import '../../css/button.scss';
@@ -11,45 +11,16 @@ function AkunTable()
 {
   const currentJabatan = localStorage.getItem('jabatan');
   const currentNomor = localStorage.getItem('nomor_anggota');
+  const [loading,setLoading] = useState(false);
   const navigate = useNavigate();
 
+  //fetch
   const [akunData,setAkunData] = useState([]);
-
-  const [filterDivisi,setFilterDivisi] = useState('');
-  const [filterJabatan,setFilterJabatan] = useState('');
-  const [filteredAkuns,setFilteredAkuns] = useState([]);
-  const [searchTerm,setSearchTerm] = useState('');
-
-  const [deleteId,setDeleteId] = useState(null);
-  const [showDeleteModal,setShowDeleteModal] = useState(false);
-
-  const [isEditing,setIsEditing] = useState(false);
-  const [editingRowId,setEditingRowId] = useState(null);
-  const [fotoFile,setFotoFile] = useState(null);
-  const [formData,setFormData] = useState({
-    nama: "",
-    nomor_anggota: "",
-    fe_password: "",
-    divisi: "",
-    jabatan: "",
-    foto: null,
-  });
-  const [loading,setLoading] = useState(false);
 
   useEffect(() =>
   {
     fetchAkunData();
   },[]);
-
-  useEffect(() =>
-  {
-    const filtered = akunData
-      .filter(item => (filterDivisi ? item.divisi === filterDivisi : true))
-      .filter(item => (filterJabatan ? item.jabatan === filterJabatan : true))
-      .filter(item => (searchTerm ? item.nama.toLowerCase().includes(searchTerm.toLowerCase()) || item.nomor_anggota.toLowerCase().includes(searchTerm.toLowerCase()) : true));
-
-    setFilteredAkuns(filtered);
-  },[filterDivisi,filterJabatan,searchTerm,akunData]);
 
   const fetchAkunData = async () =>
   {
@@ -90,12 +61,41 @@ function AkunTable()
     return '*'.repeat(password.length);
   };
 
+  //Filter, Search
+  const [filterDivisi,setFilterDivisi] = useState('');
+  const [filterJabatan,setFilterJabatan] = useState('');
+  const [filteredAkuns,setFilteredAkuns] = useState([]);
+  const [searchTerm,setSearchTerm] = useState('');
+
+  useEffect(() =>
+  {
+    const filtered = akunData
+      .filter(item => (filterDivisi ? item.divisi === filterDivisi : true))
+      .filter(item => (filterJabatan ? item.jabatan === filterJabatan : true))
+      .filter(item => (searchTerm ? item.nama.toLowerCase().includes(searchTerm.toLowerCase()) || item.nomor_anggota.toLowerCase().includes(searchTerm.toLowerCase()) : true));
+
+    setFilteredAkuns(filtered);
+  },[filterDivisi,filterJabatan,searchTerm,akunData]);
+
   const handleClearFilter = () =>
   {
     setFilterDivisi('');
     setFilterJabatan('');
     setSearchTerm('');
   };
+
+  // Edit
+  const [isEditing,setIsEditing] = useState(false);
+  const [editingRowId,setEditingRowId] = useState(null);
+  const [fotoFile,setFotoFile] = useState(null);
+  const [formData,setFormData] = useState({
+    nama: "",
+    nomor_anggota: "",
+    fe_password: "",
+    divisi: "",
+    jabatan: "",
+    foto: null,
+  });
 
   const handleEditClick = async (item) =>
   {
@@ -156,6 +156,11 @@ function AkunTable()
       foto: null,
     });
   };
+
+
+  // Delete
+  const [deleteId,setDeleteId] = useState(null);
+  const [showDeleteModal,setShowDeleteModal] = useState(false);
 
   const handleDelete = async () =>
   {

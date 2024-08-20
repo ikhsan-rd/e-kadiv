@@ -2,6 +2,7 @@ import '../../css/inputdatabase.scss'
 import React,{ useState,useRef } from 'react';
 import { Container,Form,Button,Row,Col,Modal,InputGroup } from 'react-bootstrap';
 import { Check2,Eye,Trash } from 'react-bootstrap-icons';
+import DateTimePicker from 'react-datetime-picker';
 import '../../css/button.scss'
 
 function PelatihInput()
@@ -36,6 +37,14 @@ function PelatihInput()
             setPhoneNumberInput('');
             setPhoneNumber('+62');
         }
+    };
+
+    //Handle Date Format
+    const [date,setDate] = useState(new Date());
+
+    const handleClearDate = () =>
+    {
+        setDate(null);
     };
 
     //Handle Upload Foto
@@ -107,11 +116,51 @@ function PelatihInput()
             <Form style={{ marginTop: '15px' }}>
                 <h2>Tambah Pelatih</h2>
                 <Row style={{ marginBottom: '15px' }}>
-                    <Form.Group as={Col} md={4} controlId="nama">
+                    <Form.Group as={Col} md={3} controlId="nama">
                         <Form.Label>Nama</Form.Label>
                         <Form.Control type="text" placeholder="Masukkan nama" />
                     </Form.Group>
-                    <Form.Group as={Col} md={2} controlId="jeniskelamin">
+                    <Form.Group as={Col} md={3} controlId="tempat_lahir">
+                        <Form.Label>Tempat Lahir</Form.Label>
+                        <Form.Control type="text" placeholder="Tempat Lahir" />
+                    </Form.Group>
+                    <Form.Group as={Col} md={3} controlId="tanggalLahir" >
+                        <Form.Label>Tanggal Lahir</Form.Label>
+                        <Form.Group style={{ display: 'flex' }}>
+                            <DateTimePicker
+                                format="dd/MM/yy"
+                                clearIcon={null}
+                                calendarIcon={null}
+                                disableClock={true}
+                                onChange={setDate}
+                                value={date}
+                            />
+                            {setDate !== null && (
+                                <Button variant="danger" onClick={handleClearDate} className='button-delete'>
+                                    <Trash className='trash-custom' />
+                                </Button>
+                            )}
+                        </Form.Group>
+                    </Form.Group>
+                    <Form.Group as={Col} md={3} controlId="foto">
+                        <Form.Label>Foto</Form.Label>
+                        <Form.Group style={{ display: 'flex' }}>
+                            <Form.Control
+                                type="file"
+                                accept="image/*"
+                                onChange={handleUploadFoto}
+                                ref={fotoInputRef}
+                            />
+                            {foto !== null && (
+                                <Button variant="primary" onClick={handleCekFoto} className='button-see' >
+                                    <Eye className='eye-custom' />
+                                </Button>
+                            )}
+                        </Form.Group>
+                    </Form.Group>
+                </Row >
+                <Row style={{ marginBottom: '15px' }}>
+                    <Form.Group as={Col} md={3} controlId="jeniskelamin">
                         <Form.Label>Jenis Kelamin</Form.Label>
                         <Form.Select defaultValue="Pilih">
                             <option value="">Pilih</option>
@@ -131,41 +180,8 @@ function PelatihInput()
                                 placeholder="Tulis tanpa +62" />
                         </InputGroup>
                     </Form.Group>
-                    <Form.Group as={Col} md={3} controlId="foto">
-                        <Form.Label>Foto</Form.Label>
-                        <Form.Group style={{ display: 'flex' }}>
-                            <Form.Control
-                                type="file"
-                                accept="image/*"
-                                onChange={handleUploadFoto}
-                                ref={fotoInputRef}
-                            />
-                            {foto !== null && (
-                                    <Button variant="primary" onClick={handleCekFoto} className='button-see' >
-                                        <Eye className='eye-custom' />
-                                    </Button>
-                            )}
-                        </Form.Group>
-                    </Form.Group>
-                </Row>
-                <Row style={{ marginBottom: '20px' }}>
-                    <Form.Group as={Col} md={3} controlId="divisi">
-                        <Form.Label>Divisi</Form.Label>
-                        <Form.Select as="select">
-                            <option value="">Pilih divisi</option>
-                            <option value="divisi1">Sepak Bola</option>
-                            <option value="divisi2">Bulu Tangkis</option>
-                            <option value="divisi2">Bola Voli</option>
-                            <option value="divisi2">Futsal</option>
-                            <option value="divisi3">Bela Diri (Silat)</option>
-                        </Form.Select>
-                    </Form.Group>
-                    <Form.Group as={Col} md={3} controlId="kategori">
-                        <Form.Label>Kategori</Form.Label>
-                        <Form.Control type="text" placeholder="Masukkan kategori (opsional)" />
-                    </Form.Group>
                     <Form.Group as={Col} md={3} controlId="statusanggota">
-                        <Form.Label>Status Keanggotaan UKM</Form.Label>
+                        <Form.Label>Keanggotaan UKM</Form.Label>
                         <Form.Select as="select">
                             <option value="">Pilih</option>
                             <option value="aktif">Anggota</option>
@@ -182,11 +198,28 @@ function PelatihInput()
                                 ref={pengenalInputRef}
                             />
                             {pengenal !== null && (
-                                    <Button variant="primary" onClick={handleCekPengenal} className='button-see'>
-                                        <Eye className='eye-custom' />
-                                    </Button>
+                                <Button variant="primary" onClick={handleCekPengenal} className='button-see'>
+                                    <Eye className='eye-custom' />
+                                </Button>
                             )}
                         </Form.Group>
+                    </Form.Group>
+                </Row>
+                <Row style={{ marginBottom: '20px' }}>
+                    <Form.Group as={Col} md={3} controlId="divisi">
+                        <Form.Label>Divisi</Form.Label>
+                        <Form.Select as="select">
+                            <option value="">Pilih</option>
+                            <option value="divisi1">Sepak Bola</option>
+                            <option value="divisi2">Bulu Tangkis</option>
+                            <option value="divisi2">Bola Voli</option>
+                            <option value="divisi2">Futsal</option>
+                            <option value="divisi3">Bela Diri (Silat)</option>
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group as={Col} md={3} controlId="kategori">
+                        <Form.Label>Kategori</Form.Label>
+                        <Form.Control type="text" placeholder="*Opsional" />
                     </Form.Group>
                 </Row>
                 <Button variant="primary" type="submit" style={

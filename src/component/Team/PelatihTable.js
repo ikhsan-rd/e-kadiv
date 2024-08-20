@@ -1,7 +1,7 @@
 import '../../css/inputdatabase.scss';
 import React,{ useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container,Button,Form,Row,Col,Table } from 'react-bootstrap';
+import { Container,Button,Form,Row,Col,Table,Modal } from 'react-bootstrap';
 import axios from 'axios';
 import
 {
@@ -14,15 +14,17 @@ import
     SansSortableTable,
     SansDeleteModal
 } from '../ComponentCustom/SansComps';
+import PelatihEdit from './PelatihEdit';
 
 function PelatihTable()
 {
     const currentJabatan = localStorage.getItem('jabatan');
-
-    const [tableData,setTableData] = useState([]);
-    const [divisiList,setDivisiList] = useState([]);
     const [loading,setLoading] = useState(false);
     const navigate = useNavigate();
+
+    //Fetch
+    const [tableData,setTableData] = useState([]);
+    const { sortedData,requestSort,getSortIcon } = SansSortableTable(tableData);
 
     useEffect(() =>
     {
@@ -57,8 +59,8 @@ function PelatihTable()
         }
     };
 
-    const { sortedData,requestSort,getSortIcon } = SansSortableTable(tableData);
-
+    //filter, sort, search
+    const [divisiList,setDivisiList] = useState([]);
     const [filter,setFilter] = useState('');
     const [searchTerm,setSearchTerm] = useState('');
     const [filtered,setFiltered] = useState([]);
@@ -86,6 +88,89 @@ function PelatihTable()
         requestSort('');
     };
 
+    // Edit
+    const [isEditing,setIsEditing] = useState(false);
+    const [editingRowId,setEditingRowId] = useState(null);
+    const [fotoFile,setFotoFile] = useState(null);
+    const [formData,setFormData] = useState({
+        nama: "",
+        jk: "",
+        tempat_lahir: "",
+        tgl_lahir: "",
+        wa: "",
+        divisi: "",
+        kategori: "",
+        status_anggota: "",
+        foto: null,
+    });
+
+    const handleEditClick = async (item) =>
+    {
+        if (item.foto)
+        {
+            try
+            {
+                const response = await axios.get(item.foto,{
+                    responseType: 'blob'
+                });
+
+                // Ambil tipe MIME dari response
+                const mimeType = response.data.type;
+
+                // Dapatkan ekstensi file berdasarkan tipe MIME
+                const extension = mimeType.split('/')[1]; // Ekstensi diambil dari bagian setelah slash, contoh: 'jpeg', 'png'
+
+                // Buat nama file dengan ekstensi yang sesuai
+                const fileName = `image.${extension}`;
+
+                // Buat objek File
+                const file = new File([response.data],fileName,{ type: mimeType });
+                setFotoFile(file);
+            } catch (error)
+            {
+                console.error('Error fetching the image file:',error);
+            }
+        } else
+        {
+            setFotoFile(null);
+        }
+        console.log(typeof (fotoFile));
+
+        setEditingRowId(item.id);
+        setFormData({
+            nama: item.nama,
+            jk: item.jk,
+            tempat_lahir: item.tempat_lahir,
+            tgl_lahir: item.tgl_lahir,
+            wa: item.wa,
+            divisi: item.divisi,
+            kategori: item.kategori,
+            status_anggota: item.status_anggota,
+            foto: item.foto,
+        });
+        setIsEditing(true);
+        console.log(typeof (fotoFile));
+    };
+
+
+    const handleCancelClick = () =>
+    {
+        setIsEditing(false);
+        setEditingRowId(null);
+        setFormData({
+            nama: "",
+            jk: "",
+            tempat_lahir: "",
+            tgl_lahir: "",
+            wa: "",
+            divisi: "",
+            kategori: "",
+            status_anggota: "",
+            foto: null,
+        });
+    };
+
+    //delete
     const [deleteId,setDeleteId] = useState(null);
     const [showDeleteModal,setShowDeleteModal] = useState(false);
     const handleDelete = async () =>
@@ -199,7 +284,7 @@ function PelatihTable()
                                     {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
                                         <td className='text-center'>
                                             <SansButtonEdit
-                                            // onClick={() => handleEditClick(item)}
+                                                onClick={() => handleEditClick(item)}
                                             />
                                             <SansButtonDelete
                                                 onClick={() => handleDeleteConfirmation(item.id)}
@@ -218,6 +303,16 @@ function PelatihTable()
                     </tbody>
                 </Table>
             </Form>
+
+            <Modal show={isEditing} onHide={handleCancelClick}>
+                <PelatihEdit
+                    formData={formData}
+                    setFormData={setFormData}
+                    loading={loading}
+                    setLoading={setLoading}
+                    editingRowId={editingRowId}
+                />
+            </Modal>
 
             <SansDeleteModal
                 show={showDeleteModal}
