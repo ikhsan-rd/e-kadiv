@@ -21,6 +21,15 @@ function AkunForm()
         setActiveItem(lastPart);
     },[location.pathname]);
 
+    const nowPath = location.pathname;
+    useEffect(() =>
+    {
+        if (nowPath === '/database/akun')
+        {
+            navigate(`/database/akun/table`);
+        }
+    },[nowPath,navigate]);
+
     const handleNavItemClick = (path) =>
     {
         setActiveItem(path);
