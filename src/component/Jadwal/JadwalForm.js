@@ -40,7 +40,7 @@ function JadwalForm()
                 borderRadius: '10px'
             }
         }>
-            {/* {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && ( */}
+            {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
                 <Nav variant="tabs" activeKey={activeItem}>
                     <Nav.Item>
                         <Nav.Link
@@ -59,9 +59,9 @@ function JadwalForm()
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>
-             {/* )} */}
+            )}
 
-             {/* {(currentJabatan === 'Puspendiv' || currentJabatan === 'Pelatih') && (
+            {(currentJabatan === 'Puspendiv' || currentJabatan === 'Pelatih') && (
                 <Nav variant="tabs" activeKey={activeItem}>
                     <Nav.Item>
                         <Nav.Link
@@ -72,7 +72,7 @@ function JadwalForm()
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>
-            )} */}
+            )}
 
             {/* Content Form Jadwal Table */}
             {activeItem === 'table' && (

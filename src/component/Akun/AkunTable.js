@@ -96,35 +96,35 @@ function AkunTable()
 
   const handleEditClick = async (item) =>
   { 
-    // if (item.foto)
-    // {
-    //   try
-    //   {
-    //     const response = await axios.get(item.foto,{
-    //       responseType: 'blob'
-    //     });
+    if (item.foto)
+    {
+      try
+      {
+        const response = await axios.get(item.foto,{
+          responseType: 'blob'
+        });
 
-    //     // Ambil tipe MIME dari response
-    //     const mimeType = response.data.type;
+        // Ambil tipe MIME dari response
+        const mimeType = response.data.type;
 
-    //     // Dapatkan ekstensi file berdasarkan tipe MIME
-    //     const extension = mimeType.split('/')[1]; // Ekstensi diambil dari bagian setelah slash, contoh: 'jpeg', 'png'
+        // Dapatkan ekstensi file berdasarkan tipe MIME
+        const extension = mimeType.split('/')[1]; // Ekstensi diambil dari bagian setelah slash, contoh: 'jpeg', 'png'
 
-    //     // Buat nama file dengan ekstensi yang sesuai
-    //     const fileName = `image.${extension}`;
+        // Buat nama file dengan ekstensi yang sesuai
+        const fileName = `image.${extension}`;
 
-    //     // Buat objek File
-    //     const file = new File([response.data],fileName,{ type: mimeType });
-    //     setFotoFile(file);
-    //   } catch (error)
-    //   {
-    //     console.error('Error fetching the image file:',error);
-    //   }
-    // } else
-    // {
-    //   setFotoFile(null);
-    // }
-    // console.log(typeof (fotoFile));
+        // Buat objek File
+        const file = new File([response.data],fileName,{ type: mimeType });
+        setFotoFile(file);
+      } catch (error)
+      {
+        console.error('Error fetching the image file:',error);
+      }
+    } else
+    {
+      setFotoFile(null);
+    }
+    console.log(typeof (fotoFile));
 
     setEditingRowId(item.id);
     setFormData({
@@ -133,7 +133,7 @@ function AkunTable()
       fe_password: item.fe_password,
       divisi: item.divisi,
       jabatan: item.jabatan,
-      // foto: item.foto,
+      foto: item.foto,
     });
     setIsEditing(true);
     console.log(typeof (fotoFile));
@@ -150,7 +150,7 @@ function AkunTable()
       fe_password: "",
       divisi: "",
       jabatan: "",
-      // foto: null,
+      foto: null,
     });
   };
 
@@ -246,7 +246,7 @@ function AkunTable()
               <th>Password</th>
               <th>Divisi</th>
               <th>Jabatan</th>
-              {/* <th>Foto</th> */}
+              <th>Foto</th>
               <th>Last Sign In</th>
               {(currentJabatan === 'Admin' || currentJabatan === 'Puspendiv') && (
                 <th>Action</th>
@@ -269,13 +269,13 @@ function AkunTable()
                   <td>{maskPassword(item.fe_password)}</td>
                   <td>{item.divisi}</td>
                   <td>{item.jabatan}</td>
-                  {/* <td>
+                  <td>
                     {item.foto ? (
                       <img src={item.foto} alt="Foto" style={{ maxWidth: '60px',maxHeight: '60px' }} />
                     ) : (
                       'No Photo'
                     )}
-                  </td> */}
+                  </td>
                   <td>{item.last_sign_in ? item.last_sign_in : 'N/A'}</td>
                   {(currentJabatan === 'Admin' || currentJabatan === 'Puspendiv') && (
                     <td className='text-center'>

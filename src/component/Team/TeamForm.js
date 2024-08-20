@@ -39,7 +39,7 @@ function TeamForm()
             padding: '2%',
             borderRadius: '10px'
         }}>
-            {/* {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && ( */}
+            {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
                 <Nav variant="tabs" activeKey={activeItem}>
                     <Nav.Item>
                         <Nav.Link
@@ -66,19 +66,19 @@ function TeamForm()
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>
-            {/* // )}
-            //  {(currentJabatan === 'Puspendiv' || currentJabatan === 'Pelatih') && ( */}
-            {/* //     <Nav variant="tabs" activeKey={activeItem}>
-            //         <Nav.Item>
-            //             <Nav.Link
-            //                 className={`nav-link ${activeItem === 'table' ? 'active' : ''}`}
-            //                 onClick={() => handleNavItemClick('table')}
-            //             >
-            //                 Data Team
-            //             </Nav.Link>
-            //         </Nav.Item>
-            //     </Nav> */}
-            {/* // )} */}
+            )}
+            {(currentJabatan === 'Puspendiv' || currentJabatan === 'Pelatih') && (
+                <Nav variant="tabs" activeKey={activeItem}>
+                    <Nav.Item>
+                        <Nav.Link
+                            className={`nav-link ${activeItem === 'table' ? 'active' : ''}`}
+                            onClick={() => handleNavItemClick('table')}
+                        >
+                            Data Team
+                        </Nav.Link>
+                    </Nav.Item>
+                </Nav>
+            )}
 
             {/* Content Form data Atlet */}
             {activeItem === 'table' && (

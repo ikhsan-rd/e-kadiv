@@ -2,14 +2,14 @@ import React,{ useState,useRef,useCallback } from 'react';
 import { Form,Button,Spinner,Modal,Col,Row } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-// import { PencilSquare } from 'react-bootstrap-icons';
+import { PencilSquare } from 'react-bootstrap-icons';
 // import Cropper from "react-easy-crop";
 // import getCroppedImg from "../ComponentCustom/cropImage";
 import '../../css/button.scss';
 
 function AkunEdit({ formData,setFormData,handleCancelClick,loading,setLoading,editingRowId })
 {
-    // const [isEditingPhoto,setIsEditingPhoto] = useState(false);
+    const [isEditingPhoto,setIsEditingPhoto] = useState(false);
     const navigate = useNavigate();
 
     // const [crop,setCrop] = useState({ x: 0,y: 0 });
@@ -166,15 +166,15 @@ function AkunEdit({ formData,setFormData,handleCancelClick,loading,setLoading,ed
             <Modal.Body>
                 <Form onSubmit={handleEditSubmit}>
                     <Row style={{ marginBottom: '10px' }}>
-                        {/* <Form.Group as={Col} controlId="formFoto">
+                         <Form.Group as={Col} controlId="formFoto">
                             {isEditingPhoto ? (
                                 <>
                                     <Form.Label>Edit Foto</Form.Label>
                                     <Form.Control
                                         type="file"
                                         name="foto"
-                                        onChange={handleImageChange}
-                                        ref={fileInputRef}
+                                        // onChange={handleImageChange}
+                                        // ref={fileInputRef}
                                     />
                                 </>
                             ) : (
@@ -188,7 +188,7 @@ function AkunEdit({ formData,setFormData,handleCancelClick,loading,setLoading,ed
                                         <PencilSquare
                                             type='button'
                                             className='edit-custom-2'
-                                            onClick={handlePencilClick}
+                                            // onClick={handlePencilClick}
                                         />
                                     </div>
                                 ) : (
@@ -197,13 +197,13 @@ function AkunEdit({ formData,setFormData,handleCancelClick,loading,setLoading,ed
                                         <Form.Control
                                             type="file"
                                             name="foto"
-                                            onChange={handleImageChange}
-                                            ref={fileInputRef}
+                                            // onChange={handleImageChange}
+                                            // ref={fileInputRef}
                                         />
                                     </>
                                 )
                             )}
-                        </Form.Group> */}
+                        </Form.Group>
                         <Form.Group as={Col} controlId="formNama">
                             <Form.Label>Nama</Form.Label>
                             <Form.Control

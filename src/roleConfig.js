@@ -27,5 +27,8 @@ export const allowedRoles = {
     },
     performaTeam: {
         '/performa/team': ['Kadiv','Admin','Puspendiv','Pelatih'],
+    },
+    performaAtlet: {
+        '/performa/atlet': ['Kadiv','Admin','Puspendiv','Pelatih'],
     }
 };

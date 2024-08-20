@@ -14,7 +14,8 @@ import DanaForm from './component/Dana/DanaForm';
 import NotFound from './component/Base/NotFound';
 import ProtectedRoute from './protectedRoute';
 import PerformaDivisi from './component/Performa/Divisi';
-import PerformaTeam from './component/Performa/Team';
+import PerformaAtlet from './component/Performa/Atlet';
+import PerformaTeamForm from './component/Performa Team/PerformaTeamForm';
 
 function App()
 {
@@ -44,9 +45,11 @@ function App()
             <Route path="/database/presensi/*" element={<ProtectedRoute element={<PresensiForm />} />} />
             <Route path="/keuangan/*" element={<ProtectedRoute element={<DanaForm />} />} />
             <Route path="/performa/divisi/*" element={<ProtectedRoute element={<PerformaDivisi />} />} />
-            <Route path="/performa/team/*" element={<ProtectedRoute element={<PerformaTeam />} />} />
+            <Route path="/performa/atlet/*" element={<ProtectedRoute element={<PerformaAtlet />} />} />
+            <Route path="/performa/team/*" element={<ProtectedRoute element={<PerformaTeamForm />} />} />
             <Route path="/NotFound" element={<NotFound />} />
             <Route path="*" element={<Navigate to="/NotFound" />} />
+            
           </Routes>
         </main>
       </div>

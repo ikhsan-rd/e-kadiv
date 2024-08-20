@@ -37,7 +37,7 @@ function DanaForm() {
         borderRadius: '10px',
       }}
     >
-      {/* {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && ( */}
+      {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
         <Nav variant="tabs" activeKey={activeItem}>
           <Nav.Item>
             <Nav.Link
@@ -64,7 +64,7 @@ function DanaForm() {
             </Nav.Link>
           </Nav.Item>
         </Nav>
-      {/* )} */}
+      )}
 
       {/* Content Form Dana Rekap */}
       {activeItem === 'rekap' && <DanaRekap />}

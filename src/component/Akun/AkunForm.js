@@ -40,7 +40,7 @@ function AkunForm()
                 borderRadius: '10px'
             }
         }>
-            {/* {(currentJabatan === 'Puspendiv' || currentJabatan === 'Admin') && ( */}
+            {(currentJabatan === 'Puspendiv' || currentJabatan === 'Admin') && (
                 <Nav variant="tabs" activeKey={activeItem}>
                     <Nav.Item>
                         <Nav.Link
@@ -59,10 +59,10 @@ function AkunForm()
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>
-            {/* )} */}
+            )}
 
-            {/* {(currentJabatan === 'Kadiv') && ( */}
-                {/* <Nav variant="tabs" activeKey={activeItem}>
+            {(currentJabatan === 'Kadiv') && (
+                <Nav variant="tabs" activeKey={activeItem}>
                     <Nav.Item>
                         <Nav.Link
                             className={`nav-link ${activeItem === 'table' ? 'active' : ''}`}
@@ -71,8 +71,8 @@ function AkunForm()
                             Table
                         </Nav.Link>
                     </Nav.Item>
-                </Nav> */}
-            {/* )} */}
+                </Nav>
+            )}
 
             {/* Content Form Akun Table */}
             {activeItem === 'table' && (

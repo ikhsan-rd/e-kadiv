@@ -17,6 +17,12 @@ function NavigationBar()
   const navigate = useNavigate();
   const [loading,setLoading] = useState(false);
   const [showLogoutModal,setShowLogoutModal] = useState(false);
+  const [isImageLoaded,setIsImageLoaded] = useState(true);
+
+  const handleImageError = ({ currentFoto }) =>
+  {
+    setIsImageLoaded(false);
+  };
 
   const handleLogout = () =>
   {
@@ -116,12 +122,17 @@ function NavigationBar()
                 align={{ lg: 'end' }}
                 id='dropdown-profil-sidebar'
                 title={
-                  currentFoto ? (
-                    <img
-                      src={currentFoto}
-                      alt="User"
-                      style={{ width: '36px',height: '36px',borderRadius: '50%' }}
-                    />
+                  isImageLoaded ? (
+                    currentFoto ? (
+                      <img
+                        src={currentFoto}
+                        alt="User"
+                        style={{ width: '36px',height: '36px',borderRadius: '50%' }}
+                        onError={handleImageError}
+                      />
+                    ) : (
+                      <PersonCircle style={{ width: '36px',height: '36px',color: '#dee2e6' }} />
+                    )
                   ) : (
                     <PersonCircle style={{ width: '36px',height: '36px',color: '#dee2e6' }} />
                   )
@@ -154,8 +165,8 @@ function NavigationBar()
                 )}
                 <NavDropdown title="Performa" align={{ lg: 'end' }} id="dropdown-menu-align-responsive-2">
                   <NavDropdown.Item as={Link} to="/performa/divisi">Divisi</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/performa/team">Team</NavDropdown.Item>
-                  <NavDropdown.Item as={Link} to="/performa/individu">Individu</NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/performa/team/data">Team</NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/performa/atlet">Atlet</NavDropdown.Item>
                 </NavDropdown>
 
                 <NavDropdown title="Database" align={{ lg: 'end' }} id="dropdown-menu-align-responsive-3">
@@ -180,12 +191,17 @@ function NavigationBar()
                     align={{ lg: 'end' }}
                     id='dropdown-profil-navbar'
                     title={
-                      currentFoto ? (
-                        <img
-                          src={currentFoto}
-                          alt="User"
-                          style={{ width: '36px',height: '36px',borderRadius: '50%' }}
-                        />
+                      isImageLoaded ? (
+                        currentFoto ? (
+                          <img
+                            src={currentFoto}
+                            alt="User"
+                            style={{ width: '36px',height: '36px',borderRadius: '50%' }}
+                            onError={handleImageError}
+                          />
+                        ) : (
+                          <PersonCircle style={{ width: '36px',height: '36px',color: '#dee2e6' }} />
+                        )
                       ) : (
                         <PersonCircle style={{ width: '36px',height: '36px',color: '#dee2e6' }} />
                       )
