@@ -1,9 +1,17 @@
-import { useState,useMemo } from 'react';
+import { useState,useMemo,useEffect } from 'react';
 import { ChevronUp,ChevronDown } from 'react-bootstrap-icons';
 
-const SansSortableTable = (initialData) =>
+const SansSortableTable = ({ data = [],defaultSort = '',type = 'ascending' }) =>
 {
-    const [sortConfig,setSortConfig] = useState({ key: '',direction: '' });
+    const [sortConfig,setSortConfig] = useState({ key: defaultSort,direction: type });
+
+    useEffect(() =>
+    {
+        if (defaultSort)
+        {
+            setSortConfig({ key: defaultSort,direction: type });
+        }
+    },[defaultSort,type]);
 
     const requestSort = (key) =>
     {
@@ -17,24 +25,29 @@ const SansSortableTable = (initialData) =>
 
     const sortedData = useMemo(() =>
     {
-        let sortableItems = [...initialData];
+        let sortableItems = [...data];
+
         if (sortConfig.key)
         {
             sortableItems.sort((a,b) =>
             {
-                if (a[sortConfig.key] < b[sortConfig.key])
+                const valueA = a[sortConfig.key] !== null ? a[sortConfig.key] : ''; // Replace null with an empty string
+                const valueB = b[sortConfig.key] !== null ? b[sortConfig.key] : ''; // Replace null with an empty string
+
+                if (valueA < valueB)
                 {
                     return sortConfig.direction === 'ascending' ? -1 : 1;
                 }
-                if (a[sortConfig.key] > b[sortConfig.key])
+                if (valueA > valueB)
                 {
                     return sortConfig.direction === 'ascending' ? 1 : -1;
                 }
                 return 0;
             });
         }
+
         return sortableItems;
-    },[initialData,sortConfig]);
+    },[data,sortConfig]);
 
     const getSortIcon = (key) =>
     {

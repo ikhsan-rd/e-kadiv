@@ -1,103 +1,120 @@
 import '../../css/inputdatabase.scss'
 import React,{ useState,useRef } from 'react';
-import { Container,Form,Button,Row,Col,Modal,InputGroup } from 'react-bootstrap';
-import { Check2,Eye,Trash } from 'react-bootstrap-icons';
-import DateTimePicker from 'react-datetime-picker';
+import { Container,Form,Button,Row,Col,Modal,InputGroup,Spinner } from 'react-bootstrap';
+import { Eye } from 'react-bootstrap-icons';
+import axios from 'axios';
 import '../../css/button.scss'
+import
+{
+    SansCropImage,
+    SansDatePicker,
+    SansDivisiDropdown,
+    SansNotify,
+    SansFileInput,
+    SansDateToSend,
+} from '../ComponentCustom/SansComps';
 
 function PelatihInput()
 {
+    const currentToken = sessionStorage.getItem('token');
 
-    //Handle Nomor Whatsapp
-    const [phoneNumberInput,setPhoneNumberInput] = useState('');
-    const [phoneNumber,setPhoneNumber] = useState('+62');
+    const [loading,setLoading] = useState(false);
 
-    const isValidPhoneNumber = (phoneNumber) =>
+    const [formData,setFormData] = useState({
+        nama: "",
+        npm: "",
+        jk: "",
+        tempat_lahir: "",
+        tgl_lahir: "",
+        angkatan: "",
+        jurusan: "",
+        wa: "",
+        divisi: "",
+        kategori: "",
+        status_mhs: "",
+        status_anggota: "",
+        ktp: null,
+        foto: null,
+    });
+
+    const handleChange = (e) =>
     {
-        const numericPhoneNumber = phoneNumber.replace(/\D/g,'');
-        return numericPhoneNumber.length >= 10 && numericPhoneNumber.length <= 14;
+        const { name,value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
     };
 
-    const handlePhoneNumberChange = (event) =>
-    {
-        const inputValue = event.target.value;
-        const numericValue = inputValue.replace(/\D/g,'');
+    // Handle Image crop dan cancel
+    const [imageSrc,setImageSrc] = useState(null);
+    const [showCropper,setShowCropper] = useState(false);
+    const fileInputRef = useRef(null);
 
-        if (numericValue.length <= 15)
+    const handleImageChange = (e) =>
+    {
+        const file = e.target.files[0];
+        if (file)
         {
-            setPhoneNumberInput(inputValue);
-            setPhoneNumber('+62' + numericValue);
+            const reader = new FileReader();
+            reader.onloadend = () =>
+            {
+                setImageSrc(reader.result);
+                setShowCropper(true);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
-    const handleBlur = () =>
+    const handleCropComplete = (croppedBlob) =>
     {
-        if (!isValidPhoneNumber(phoneNumber))
+        setFormData(prevData => ({
+            ...prevData,
+            foto: croppedBlob,
+        }));
+        setImageSrc(null);
+        setShowCropper(false);
+    };
+
+    const handleCancel = () =>
+    {
+        setImageSrc(null);
+        setFormData(prevData => ({
+            ...prevData,
+            foto: null,
+        }));
+        if (fileInputRef.current)
         {
-            setPhoneNumberInput('');
-            setPhoneNumber('+62');
+            fileInputRef.current.value = '';
         }
     };
 
-    //Handle Date Format
-    const [date,setDate] = useState(new Date());
-
-    const handleClearDate = () =>
-    {
-        setDate(null);
-    };
-
-    //Handle Upload Foto
-    const [foto,setFoto] = useState(null);
-    const fotoInputRef = useRef(null);
-    const [showModalFoto,setShowModalFoto] = useState(false);
-
-    const handleUploadFoto = (event) =>
-    {
-        const uploadedFoto = URL.createObjectURL(event.target.files[0]);
-        setFoto(uploadedFoto);
-    };
-
-    const handleHapusFoto = () =>
-    {
-        handleCloseModalFoto();
-        URL.revokeObjectURL(foto);
-        setFoto(null);
-        if (fotoInputRef.current)
-        {
-            fotoInputRef.current.value = "";
-        }
-    };
-
-    const handleCekFoto = () =>
-    {
-        setShowModalFoto(true);
-    };
-
-    const handleCloseModalFoto = () =>
-    {
-        setShowModalFoto(false);
-    };
-
-    //Handle Upload Tanda Pengenal
-    const [pengenal,setPengenal] = useState(null);
-    const pengenalInputRef = useRef(null);
+    //ktp
+    const ktpInputRef = useRef(null);
     const [showModalPengenal,setShowModalPengenal] = useState(false);
 
-    const handleUploadPengenal = (event) =>
+    const handleKtpChange = (e) =>
     {
-        const uploadedPengenal = URL.createObjectURL(event.target.files[0]);
-        setPengenal(uploadedPengenal);
+        const file = e.target.files[0];
+        if (file)
+        {
+            setFormData((prevData) => ({
+                ...prevData,
+                ktp: file,
+            }));
+        }
     };
 
     const handleHapusPengenal = () =>
     {
-        handleCloseModalPengenal();
-        URL.revokeObjectURL(pengenal);
-        setPengenal(null);
-        if (pengenalInputRef.current)
+        setFormData((prevData) => ({
+            ...prevData,
+            ktp: null,
+        }));
+        setShowModalPengenal(false);
+        if (ktpInputRef.current)
         {
-            pengenalInputRef.current.value = "";
+            ktpInputRef.current.value = '';
         }
     };
 
@@ -106,98 +123,224 @@ function PelatihInput()
         setShowModalPengenal(true);
     };
 
-    const handleCloseModalPengenal = () =>
+    //Handle Submit
+    const handleSubmit = async (e) =>
     {
-        setShowModalPengenal(false);
+        e.preventDefault();
+        setLoading(true);
+
+        const data = new FormData();
+        Object.keys(formData).forEach((key) =>
+        {
+            data.append(key,formData[key]);
+        });
+
+        // Ensure both files are added
+        if (formData.foto)
+        {
+            data.append("foto",formData.foto);
+        }
+        if (formData.ktp)
+        {
+            data.append("ktp",formData.ktp);
+        }
+
+        // Log form data entries for debugging
+        console.log("Form Data Entries:");
+        for (let pair of data.entries())
+        {
+            const [key,value] = pair;
+            let valueType = typeof value;
+
+            if (value instanceof File)
+            {
+                valueType = "File";
+            }
+
+            console.log(`${key}: ${value} (Type: ${valueType})`);
+        }
+
+        const formattedData = {
+            ...formData,
+            tgl_lahir: SansDateToSend(formData.tgl_lahir),
+        };
+
+        try
+        {
+            await axios.get("http://localhost:8000/sanctum/csrf-cookie",{
+                withCredentials: true,
+            });
+
+            await axios.post("http://localhost:8000/api/pelatih",formattedData,{
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${currentToken}`,
+                },
+                withCredentials: true,
+            });
+
+            setFormData({
+                nama: "",
+                jk: "",
+                tempat_lahir: "",
+                tgl_lahir: "",
+                wa: "",
+                divisi: "",
+                kategori: "",
+                status_anggota: "",
+                foto: null,
+                ktp: null,
+            });
+            setImageSrc(null);
+
+            if (fileInputRef.current)
+            {
+                fileInputRef.current.value = "";
+            }
+            if (ktpInputRef.current)
+            {
+                ktpInputRef.current.value = "";
+            }
+            setSuccessMessage("Data Atlet berhasil ditambahkan");
+            setStatus('success');
+            setShowNotify(true);
+        } catch (err)
+        {
+            setErrorMessage("Terjadi Kesalahan");
+            setStatus('error');
+            setShowNotify(true);
+            console.error("Response data:",err.response.data.message);
+        } finally
+        {
+
+            setLoading(false);
+        }
+    };
+
+    //notify
+    const [status,setStatus] = useState(null);
+    const [showNotify,setShowNotify] = useState(false);
+    const [successMessage,setSuccessMessage] = useState("");
+    const [errorMessage,setErrorMessage] = useState("");
+
+    const handleCloseNotify = () =>
+    {
+        setShowNotify(false);
+        setSuccessMessage("");
+        setErrorMessage("");
+        setTimeout(() =>
+        {
+            setStatus(null);
+        },100);
     };
 
     return (
-        <Container>
-            <Form style={{ marginTop: '15px' }}>
-                <h2>Tambah Pelatih</h2>
+        <>
+            <Form onSubmit={handleSubmit}>
                 <Row style={{ marginBottom: '15px' }}>
                     <Form.Group as={Col} md={3} controlId="nama">
                         <Form.Label>Nama</Form.Label>
-                        <Form.Control type="text" placeholder="Masukkan nama" />
+                        <Form.Control
+                            type="text"
+                            placeholder='Masukan Nama'
+                            name="nama"
+                            value={formData.nama}
+                            onChange={handleChange}
+                            required
+                            disabled={loading}
+                        />
                     </Form.Group>
-                    <Form.Group as={Col} md={3} controlId="tempat_lahir">
+                    <Form.Group as={Col} md={3} >
                         <Form.Label>Tempat Lahir</Form.Label>
-                        <Form.Control type="text" placeholder="Tempat Lahir" />
+                        <Form.Control
+                            type="text"
+                            placeholder='Masukan Tempat Lahir'
+                            name="tempat_lahir"
+                            value={formData.tempat_lahir}
+                            onChange={handleChange}
+                            required
+                            disabled={loading}
+                        />
                     </Form.Group>
-                    <Form.Group as={Col} md={3} controlId="tanggalLahir" >
+                    <Form.Group as={Col} md={3} >
                         <Form.Label>Tanggal Lahir</Form.Label>
-                        <Form.Group style={{ display: 'flex' }}>
-                            <DateTimePicker
-                                format="dd/MM/yy"
-                                clearIcon={null}
-                                calendarIcon={null}
-                                disableClock={true}
-                                onChange={setDate}
-                                value={date}
-                            />
-                            {setDate !== null && (
-                                <Button variant="danger" onClick={handleClearDate} className='button-delete'>
-                                    <Trash className='trash-custom' />
-                                </Button>
-                            )}
-                        </Form.Group>
+                        <SansDatePicker
+                            value={formData.tgl_lahir}
+                            onChange={(date) => setFormData({ ...formData,tgl_lahir: date })}
+                            onClear={() => setFormData({ ...formData,tgl_lahir: null })}
+                            disabled={loading}
+                            required
+                        />
                     </Form.Group>
                     <Form.Group as={Col} md={3} controlId="foto">
                         <Form.Label>Foto</Form.Label>
-                        <Form.Group style={{ display: 'flex' }}>
-                            <Form.Control
-                                type="file"
-                                accept="image/*"
-                                onChange={handleUploadFoto}
-                                ref={fotoInputRef}
-                            />
-                            {foto !== null && (
-                                <Button variant="primary" onClick={handleCekFoto} className='button-see' >
-                                    <Eye className='eye-custom' />
-                                </Button>
-                            )}
-                        </Form.Group>
+                        <Form.Control
+                            type="file"
+                            name="foto"
+                            onChange={handleImageChange}
+                            required
+                            ref={fileInputRef}
+                            disabled={loading}
+                        />
                     </Form.Group>
                 </Row >
                 <Row style={{ marginBottom: '15px' }}>
-                    <Form.Group as={Col} md={3} controlId="jeniskelamin">
+                    <Form.Group as={Col} md={3} >
                         <Form.Label>Jenis Kelamin</Form.Label>
-                        <Form.Select defaultValue="Pilih">
+                        <Form.Select
+                            name="jk"
+                            value={formData.jk}
+                            onChange={handleChange}
+                            required
+                            disabled={loading}
+                        >
                             <option value="">Pilih</option>
-                            <option>Laki-laki</option>
-                            <option>Perempuan</option>
+                            <option value="L">Laki-laki</option>
+                            <option value="P">Perempuan</option>
                         </Form.Select>
                     </Form.Group>
-                    <Form.Group as={Col} md={3} controlId="whatsapp">
+                    <Form.Group as={Col} md={3}>
                         <Form.Label>Whatsapp</Form.Label>
                         <InputGroup>
                             <InputGroup.Text>+62</InputGroup.Text>
-                            <Form.Control type="tel"
-                                value={phoneNumberInput}
-                                onChange={handlePhoneNumberChange}
-                                onBlur={handleBlur}
-                                maxLength={12}
-                                placeholder="Tulis tanpa +62" />
+                            <Form.Control
+                                type="text"
+                                name='wa'
+                                value={formData.wa}
+                                onChange={handleChange}
+                                placeholder='tulis tanpa 0 atau +62'
+                                maxLength={15}
+                                disabled={loading}
+                                required
+                            />
                         </InputGroup>
                     </Form.Group>
-                    <Form.Group as={Col} md={3} controlId="statusanggota">
+                    <Form.Group as={Col} md={3} >
                         <Form.Label>Keanggotaan UKM</Form.Label>
-                        <Form.Select as="select">
+                        <Form.Select
+                            name="status_anggota"
+                            value={formData.status_anggota}
+                            onChange={handleChange}
+                            required
+                            disabled={loading}
+                        >
                             <option value="">Pilih</option>
-                            <option value="aktif">Anggota</option>
-                            <option value="tidak-aktif">Non-Anggota</option>
+                            <option value="Y">Anggota</option>
+                            <option value="N">Non-Anggota</option>
                         </Form.Select>
                     </Form.Group>
-                    <Form.Group as={Col} md={3} controlId="pengenal">
+                    <Form.Group as={Col} md={3} >
                         <Form.Label>KTP/SIM/Lainnya (pdf)</Form.Label>
                         <Form.Group style={{ display: 'flex' }}>
                             <Form.Control
                                 type="file"
-                                accept="application/pdf"
-                                onChange={handleUploadPengenal}
-                                ref={pengenalInputRef}
+                                name="ktp"
+                                onChange={handleKtpChange}
+                                required
+                                ref={ktpInputRef}
+                                disabled={loading}
                             />
-                            {pengenal !== null && (
+                            {formData.ktp && (
                                 <Button variant="primary" onClick={handleCekPengenal} className='button-see'>
                                     <Eye className='eye-custom' />
                                 </Button>
@@ -206,67 +349,69 @@ function PelatihInput()
                     </Form.Group>
                 </Row>
                 <Row style={{ marginBottom: '20px' }}>
-                    <Form.Group as={Col} md={3} controlId="divisi">
+                    <Form.Group as={Col} md={3} >
                         <Form.Label>Divisi</Form.Label>
-                        <Form.Select as="select">
-                            <option value="">Pilih</option>
-                            <option value="divisi1">Sepak Bola</option>
-                            <option value="divisi2">Bulu Tangkis</option>
-                            <option value="divisi2">Bola Voli</option>
-                            <option value="divisi2">Futsal</option>
-                            <option value="divisi3">Bela Diri (Silat)</option>
-                        </Form.Select>
+                        <SansDivisiDropdown
+                            value={formData.divisi}
+                            onChange={handleChange}
+                            disabled={loading}
+                            required
+                        />
                     </Form.Group>
-                    <Form.Group as={Col} md={3} controlId="kategori">
+                    <Form.Group as={Col} md={3} >
                         <Form.Label>Kategori</Form.Label>
-                        <Form.Control type="text" placeholder="*Opsional" />
+                        <Form.Control
+                            type="text"
+                            placeholder="*Opsional"
+                            name="kategori"
+                            value={formData.kategori}
+                            onChange={handleChange}
+                            disabled={loading}
+                        />
                     </Form.Group>
                 </Row>
-                <Button variant="primary" type="submit" style={
-                    {
-                        width: '30%',
-                        margin: '0 35%'
-                    }
-                }>
-                    Submit
+            <Modal.Footer>
+                <Button
+                    variant="primary"
+                    type="submit"
+                    disabled={loading}
+                    style={{ width: "30%",margin: "5px 35% 0 35%" }}
+                >
+                    {loading ? (
+                        <Spinner animation="border" size="sm" />
+                    ) : 'Tambah'}
                 </Button>
+            </Modal.Footer>
             </Form>
-            {/* Modal untuk menampilkan foto */}
-            <Modal show={showModalFoto} onHide={handleCloseModalFoto}>
-                <Modal.Header>
-                    <Modal.Title>Foto</Modal.Title>
-                </Modal.Header>
-                <Modal.Body style={{ display: 'flex',justifyContent: 'center',alignItems: 'center' }}>
-                    <img src={foto} alt="Foto" style={{ minHeight: '60vh',maxHeight: '60vh',maxWidth: '100%',objectFit: 'contain' }} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="danger" onClick={handleHapusFoto} className='button-delete' style={{ marginRight: '5px' }}>
-                        <Trash className='trash-custom' />
-                    </Button>
-                    <Button variant="success" onClick={handleCloseModalFoto} className='button-check'>
-                        <Check2 className='check2-custom' />
-                    </Button>
-                </Modal.Footer>
-            </Modal>
 
-            {/* Modal untuk menampilkan pengenal */}
-            <Modal show={showModalPengenal} onHide={handleCloseModalPengenal}>
-                <Modal.Header>
-                    <Modal.Title>Tanda Pengenal</Modal.Title>
-                </Modal.Header>
-                <Modal.Body style={{ display: 'flex',justifyContent: 'center',alignItems: 'center' }}>
-                    <iframe src={`${pengenal}#toolbar=0`} alt="Pengenal" style={{ minHeight: '60vh',maxHeight: '60vh',maxWidth: '100%',objectFit: 'contain' }} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="danger" onClick={handleHapusPengenal} className='button-delete' style={{ marginRight: '5px' }}>
-                        <Trash className='trash-custom' />
-                    </Button>
-                    <Button variant="success" onClick={handleCloseModalPengenal} className='button-check'>
-                        <Check2 className='check2-custom' />
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        </Container >
+            {formData.ktp && (
+                <SansFileInput
+                    show={showModalPengenal}
+                    onHide={() => setShowModalPengenal(false)}
+                    fileSrc={formData.ktp}
+                    onDelete={handleHapusPengenal}
+                />
+            )}
+
+            {imageSrc && (
+                <SansCropImage
+                    imageSrc={imageSrc}
+                    show={showCropper}
+                    onHide={() => setShowCropper(false)}
+                    onCropComplete={handleCropComplete}
+                    onCancel={handleCancel}
+                    rasio={3 / 4}
+                />
+            )}
+
+            <SansNotify
+                show={showNotify}
+                onHide={handleCloseNotify}
+                status={status}
+                onSuccess={successMessage}
+                onError={errorMessage}
+            />
+        </>
     );
 }
 

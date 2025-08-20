@@ -1,10 +1,12 @@
 export const allowedRoles = {
     keuangan: {
-        '/keuangan/*': ['Admin','Kadiv']
+        '/database/keuangan': ['Admin','Kadiv']
     },
     team: {
-        '/database/team/table': ['Puspendiv','Pelatih','Admin','Kadiv'],
-        '/database/team/*': ['Admin','Kadiv']
+        '/database/team/pelatih/table': ['Puspendiv','Pelatih','Admin','Kadiv'],
+        '/database/team/atlet/table': ['Puspendiv','Pelatih','Admin','Kadiv'],
+        '/database/team/pelatih/input': ['Admin','Kadiv'],
+        '/database/team/atlet/input': ['Admin','Kadiv'],
     },
     jadwal: {
         '/database/jadwal/table': [,'Puspendiv','Pelatih','Admin','Kadiv'],
@@ -23,12 +25,12 @@ export const allowedRoles = {
         '/database/akun/*': ['Admin','Puspendiv']
     },
     performaDivisi: {
-        '/performa/divisi': ['Kadiv','Admin','Puspendiv'],
+        '/performa/divisi/*': ['Kadiv','Admin','Puspendiv'],
     },
     performaTeam: {
-        '/performa/team': ['Kadiv','Admin','Puspendiv','Pelatih'],
+        '/performa/team/*': ['Kadiv','Admin','Puspendiv','Pelatih'],
     },
     performaAtlet: {
-        '/performa/atlet': ['Kadiv','Admin','Puspendiv','Pelatih'],
+        '/performa/atlet/*': ['Kadiv','Admin','Puspendiv','Pelatih'],
     }
 };

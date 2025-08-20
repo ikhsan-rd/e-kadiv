@@ -5,15 +5,17 @@ import { useLocation,useNavigate } from 'react-router-dom';
 import DanaKeluarInput from './DanaKeluarInput';
 import DanaMasukInput from './DanaMasukInput';
 import DanaRekap from './DanaRekap';
+import DanaKeluarTable from './DanaKeluarTable';
+import DanaMasukTable from './DanaMasukTable';
 
 function DanaForm()
 {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeItem,setActiveItem] = useState('');
-  const [loading,setLoading] = useState(false);
+  const [loading,setLoading] = useState(true);
 
-  const currentJabatan = localStorage.getItem('jabatan');
+  const currentJabatan = sessionStorage.getItem('jabatan');
 
   useEffect(() =>
   {
@@ -22,25 +24,28 @@ function DanaForm()
     setActiveItem(lastPart);
   },[location.pathname]);
 
+  // useEffect(() =>
+  // {
+  //   if (loading)
+  //   {
+  //     setLoading(false);
+  //   }
+  // },[loading]);
+
   const nowPath = location.pathname;
   useEffect(() =>
   {
-    if (nowPath === '/keuangan')
+    if (nowPath === '/database/keuangan')
     {
-      navigate(`/keuangan/rekap`);
+      navigate(`/database/keuangan/rekap`);
     }
   },[nowPath,navigate]);
 
   const handleNavItemClick = (path) =>
   {
     setActiveItem(path);
-    navigate(`/keuangan/${path}`);
+    navigate(`/database/keuangan/${path}`);
   };
-
-  if (loading)
-  {
-    return <div>Loading...</div>;
-  }
 
   return (
     <Container
@@ -57,25 +62,48 @@ function DanaForm()
               className={`nav-link ${activeItem === 'rekap' ? 'active' : ''}`}
               onClick={() => handleNavItemClick('rekap')}
             >
-              Rekapitulasi
+              Rekap
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link
-              className={`nav-link ${activeItem === 'keluar' ? 'active' : ''}`}
-              onClick={() => handleNavItemClick('keluar')}
+              className={`nav-link ${activeItem === 'dana-keluar' ? 'active' : ''}`}
+              onClick={() => handleNavItemClick('dana-keluar')}
+            >
+              Data Dana Keluar
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link
+              className={`nav-link ${activeItem === 'dana-masuk' ? 'active' : ''}`}
+              onClick={() => handleNavItemClick('dana-masuk')}
+            >
+              Data Dana Masuk
+            </Nav.Link>
+          </Nav.Item>
+
+          {/* <Nav.Item>
+            <Nav.Link disabled>
+              |
+            </Nav.Link>
+          </Nav.Item> */}
+
+          {/* <Nav.Item>
+            <Nav.Link
+              className={`nav-link ${activeItem === 'dana-keluar/input' ? 'active' : ''}`}
+              onClick={() => handleNavItemClick('dana-keluar/input')}
             >
               Tambah Dana Keluar
             </Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link
-              className={`nav-link ${activeItem === 'masuk' ? 'active' : ''}`}
-              onClick={() => handleNavItemClick('masuk')}
+              className={`nav-link ${activeItem === 'dana-masuk/input' ? 'active' : ''}`}
+              onClick={() => handleNavItemClick('dana-masuk/input')}
             >
               Tambah Dana Masuk
             </Nav.Link>
-          </Nav.Item>
+          </Nav.Item> */}
         </Nav>
       )}
 
@@ -83,10 +111,16 @@ function DanaForm()
       {activeItem === 'rekap' && <DanaRekap />}
 
       {/* Content Dana Keluar Input */}
-      {activeItem === 'keluar' && <DanaKeluarInput />}
+      {activeItem === 'dana-keluar' && <DanaKeluarTable />}
 
       {/* Content Dana Masuk Input */}
-      {activeItem === 'masuk' && <DanaMasukInput />}
+      {activeItem === 'dana-masuk' && <DanaMasukTable />}
+
+      {/* Content Dana Keluar Input */}
+      {/* {activeItem === 'dana-keluar/input' && <DanaKeluarInput />} */}
+
+      {/* Content Dana Masuk Input */}
+      {/* {activeItem === 'dana-masuk/input' && <DanaMasukInput />} */}
     </Container>
   );
 }

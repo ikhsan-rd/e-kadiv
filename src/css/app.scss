@@ -1,13 +1,31 @@
 #app {
   background: linear-gradient(to right, rgb(11, 96, 176, 0.9), rgb(64, 162, 216, 0.5)), url('../assets/bg.jpg');
   background-repeat: no-repeat;
-  background-size:cover;
+  background-size: cover;
   background-attachment: fixed;
   background-position: center;
   min-height: 100vh;
 
   #main {
-  padding: 5vh 5vw 5vw 5vw ;
+    padding: 5vh 2vw 5vh 2vw;
+  }
+
+  .container {
+    margin: 0 0 0 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .form {
+    width: 100%;
+  }
+
+}
+
+@media screen and (max-width: 800px) {
+  .tableData {
+    overflow-x: auto;
+    white-space: nowrap;
   }
 }
 

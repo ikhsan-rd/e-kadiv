@@ -1,325 +1,384 @@
-import React,{ useState,useRef } from 'react';
-import { Container,Form,Button,Row,Col,InputGroup } from 'react-bootstrap';
-import { Trash } from 'react-bootstrap-icons';
-import '../../css/button.scss';
-import { SansDayCheckBox, SansTimePicker } from '../ComponentCustom/SansComps';
-import DateTimePicker from 'react-datetime-picker';
+import React,{ useState } from 'react';
+import { Container,Form,Button,Row,Col,InputGroup,Spinner,Modal } from 'react-bootstrap';
+import axios from 'axios';
+import
+{
+    SansCheckBox,
+    SansRadioButton,
+    SansDaysDropdown,
+    SansTimePicker,
+    SansDatePicker,
+    SansDivisiDropdown,
+    SansNotify,
+    SansDateToSend,
+    SansTimeToSend
+} from '../ComponentCustom/SansComps';
 
 function JadwalInput()
 {
-    const [type,setType] = useState('sekali');
-    const [startDate,setStartDate] = useState(null);
-    const [endDate,setEndDate] = useState(null);
-    const [startTime,setStartTime] = useState(null);
-    const [endTime,setEndTime] = useState(null);
-    const [isAllDay,setIsAllDay] = useState(false);
-    const [isIuran,setIuran] = useState(true);
-    const [dayCheckbox,setSelectedDayCheckbox] = useState([]);
+    const currentToken = sessionStorage.getItem('token');
+    const currentDivisi = sessionStorage.getItem('divisi');
 
-    const handleDayCheckboxChange = (dayCheckbox) =>
+    const [loading,setLoading] = useState(false);
+    const [type,setType] = useState('OneSession');
+    const [isAllDay,setIsAllDay] = useState(false);
+    const [isIuran,setIsIuran] = useState(false);
+
+    // Initialize form data state
+    const [formData,setFormData] = useState({
+        divisi: currentDivisi || "",
+        kegiatan: "",
+        tgl_mulai: null,
+        tgl_selesai: null,
+        hari: "",
+        jam_mulai: null,
+        jam_selesai: null,
+        tempat: "",
+        iuran: null,
+        status: "N",
+    });
+
+    const handleChange = (e) =>
     {
-        setSelectedDayCheckbox(dayCheckbox);
+        const { name,value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
     };
 
+    //handle checkbox dan radio button
     const handleTypeChange = (event) =>
     {
-        setType(event.target.value);
-    };
+        const type = event.target.value;
+        setType(type);
 
-    const handleChangeStartDate = (value) =>
-    {
-        setStartDate(value);
-    };
-
-    const handleChangeEndDate = (value) =>
-    {
-        setEndDate(value);
-    };
-
-    const handleClearStartDate = () =>
-    {
-        setStartDate(null);
-    };
-
-    const handleClearEndDate = () =>
-    {
-        setEndDate(null);
-    };
-
-    const handleChangeStartTime = (value) =>
-    {
-        setStartTime(value);
-    };
-
-    const handleChangeEndTime = (value) =>
-    {
-        setEndTime(value);
-    };
-
-    const handleClearStartTime = () =>
-    {
-        setStartTime(null);
-    };
-
-    const handleClearEndTime = () =>
-    {
-        setEndTime(null);
+        if (type === 'Repeat')
+        {
+            setFormData({
+                ...formData,
+                tgl_mulai: null,
+                tgl_selesai: null,
+            });
+        } else if (type === 'OneSession')
+        {
+            setFormData({
+                ...formData,
+                tgl_selesai: formData.tgl_mulai,
+            });
+        }
     };
 
     const handleAllDayChange = (event) =>
     {
-        setIsAllDay(event.target.checked);
-        if (event.target.checked)
+        const checked = event.target.checked;
+        setIsAllDay(checked);
+        if (checked)
         {
-            setStartTime(null);
-            setEndTime(null);
+            setFormData({
+                ...formData,
+                jam_mulai: null,
+                jam_selesai: null,
+            });
         }
     };
 
     const handleIuranChange = (event) =>
     {
-        setIuran(event.target.checked);
-        if (event.target.checked)
+        const checked = event.target.checked;
+        setIsIuran(checked);
+        if (!checked)
         {
-            setStartTime(null);
-            setEndTime(null);
+            setFormData(prevData => ({
+                ...prevData,
+                iuran: null
+            }));
         }
     };
 
+    const handleSubmit = async (e) =>
+    {
+        e.preventDefault();
+        setLoading(true);
+
+        let isValid = true;
+        let errorMessage = '';
+
+        if (!isAllDay)
+        {
+            if (!formData.jam_mulai || !formData.jam_selesai)
+            {
+                isValid = false;
+                errorMessage = 'Lengkapi data';
+            }
+        }
+
+        if (type === 'LongSession')
+        {
+            if (!formData.tgl_mulai || !formData.tgl_selesai)
+            {
+                isValid = false;
+                errorMessage = 'Lengkapi data';
+            }
+        }
+        else if (type === 'OneSession')
+        {
+            if (!formData.tgl_mulai)
+            {
+                isValid = false;
+                errorMessage = 'Lengkapi data';
+            }
+        }
+
+        if (!isValid)
+        {
+            setErrorMessage(errorMessage);
+            setStatus('error');
+            setShowNotify(true);
+            setLoading(false);
+            return;
+        }
+
+        const formattedData = {
+            ...formData,
+            jam_mulai: SansTimeToSend(formData.jam_mulai),
+            jam_selesai: SansTimeToSend(formData.jam_selesai),
+            tgl_mulai: SansDateToSend(formData.tgl_mulai),
+            tgl_selesai: SansDateToSend(formData.tgl_selesai),
+        };
+
+        try
+        {
+            await axios.post("http://localhost:8000/api/jadwal",formattedData,{
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${currentToken}`,
+                },
+                withCredentials: true,
+            });
+
+            console.log(formattedData);
+            setSuccessMessage("Data berhasil ditambahkan");
+            setStatus('success');
+            setShowNotify(true);
+
+            setFormData({
+                divisi: currentDivisi || "",
+                kegiatan: "",
+                tgl_mulai: null,
+                tgl_selesai: null,
+                hari: "",
+                jam_mulai: null,
+                jam_selesai: null,
+                tempat: "",
+                iuran: null,
+                status: "N",
+            });
+            setIsIuran(false);
+            setIsAllDay(false);
+            setType('OneSession');
+        } catch (err)
+        {
+            if (err.response && err.response.data.message)
+            {
+                setErrorMessage(err.response.data.message);
+            } else
+            {
+                setErrorMessage("Terjadi Kesalahan");
+                console.error("Response data:",err.response.data);
+            }
+            setStatus('error');
+            setShowNotify(true);
+        } finally
+        {
+            setLoading(false);
+        }
+    };
+
+    // Notify state
+    const [status,setStatus] = useState(null);
+    const [showNotify,setShowNotify] = useState(false);
+    const [successMessage,setSuccessMessage] = useState("");
+    const [errorMessage,setErrorMessage] = useState("");
+
+    const handleCloseNotify = () =>
+    {
+        setShowNotify(false);
+        setSuccessMessage("");
+        setErrorMessage("");
+        setTimeout(() =>
+        {
+            setStatus(null);
+        },100);
+    };
+
     return (
-        <Container>
-            <Form style={{ marginTop: '15px' }}>
-                <h2 style={{ marginBottom: '15px' }}>Tambah Jadwal</h2>
-                <Form.Group as={Col} md={6}
+        <>
+            <Form onSubmit={handleSubmit}>
+                <Form.Group as={Col} md={12}
                     style={{
                         display: 'flex',
                         alignSelf: 'flex-end',
                         justifyContent: 'space-between',
                         height: 'fit-content',
-                        marginBottom: '15px'
+                        marginBottom: '15px',
+                        maxWidth: '100%',
                     }}>
-                    <Form.Group controlId="seharian">
-                        <Form.Check
-                            type="checkbox"
-                            label="Seharian"
-                            checked={isAllDay}
-                            onChange={handleAllDayChange}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="iuran">
-                        <Form.Check
-                            type="checkbox"
-                            label="Iuran"
-                            checked={isIuran}
-                            onChange={handleIuranChange}
-                        />
-                    </Form.Group>
+                    <SansCheckBox
+                        isChecked={isAllDay}
+                        onChange={handleAllDayChange}
+                        label='Seharian'
+                    />
+                    <SansCheckBox
+                        isChecked={isIuran}
+                        onChange={handleIuranChange}
+                        label='Iuran'
+                    />
                     |
-                    <Form.Group controlId="sekali">
-                        <Form.Check
-                            inline
-                            type="radio"
-                            label="Sekali"
-                            name="type"
-                            value="sekali"
-                            checked={type === 'sekali'}
-                            onChange={handleTypeChange}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="berulang">
-                        <Form.Check
-                            inline
-                            type="radio"
-                            label="Berulang"
-                            name="type"
-                            value="berulang"
-                            checked={type === 'berulang'}
-                            onChange={handleTypeChange}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="berkelanjutan">
-                        <Form.Check
-                            inline
-                            type="radio"
-                            label="Berkelanjutan"
-                            name="type"
-                            value="berkelanjutan"
-                            checked={type === 'berkelanjutan'}
-                            onChange={handleTypeChange}
-                        />
-                    </Form.Group>
+                    <SansRadioButton
+                        isChecked={type === 'OneSession'}
+                        onChange={handleTypeChange}
+                        label='Sekali'
+                        value='OneSession'
+                    />
+                    <SansRadioButton
+                        isChecked={type === 'Repeat'}
+                        onChange={handleTypeChange}
+                        label='Rutin'
+                        value='Repeat'
+                    />
+                    <SansRadioButton
+                        isChecked={type === 'LongSession'}
+                        onChange={handleTypeChange}
+                        label='Berlanjut'
+                        value='LongSession'
+                    />
                 </Form.Group>
+
                 <Row style={{ marginBottom: '15px' }}>
                     <Form.Group as={Col} md={3} controlId="divisi">
                         <Form.Label>Divisi</Form.Label>
-                        <Form.Select as="select">
-                            <option value="">Pilih Divisi</option>
-                            <option value="divisi1">Sepak Bola</option>
-                            <option value="divisi2">Bulu Tangkis</option>
-                            <option value="divisi2">Bola Voli</option>
-                            <option value="divisi2">Futsal</option>
-                            <option value="divisi3">Bela Diri (Silat)</option>
-                        </Form.Select>
+                        <SansDivisiDropdown
+                            required={true}
+                            disabled={loading}
+                            setLoading={setLoading}
+                            value={formData.divisi}
+                            onChange={handleChange}
+                        />
                     </Form.Group>
                     <Form.Group as={Col} md={3} controlId="kegiatan">
                         <Form.Label>Jenis Kegiatan</Form.Label>
-                        <Form.Select as="select">
-                            <option value="">Pilih Jenis Kegiatan</option>
-                            <option selected={true} value="latihan">Latihan</option>
-                            <option value="sparing">Sparing</option>
-                            <option value="funMatch">Fun Match</option>
-                            <option value="pertandingan">Pertandingan</option>
+                        <Form.Select
+                            name="kegiatan"
+                            value={formData.kegiatan}
+                            onChange={handleChange}
+                            required={true}
+                            disabled={loading}
+                        >
+                            <option value="">Pilih</option>
+                            <option value="Latihan">Latihan</option>
+                            <option value="Sparing">Sparing</option>
+                            <option value="Fun Match">Fun Match</option>
+                            <option value="Pertandingan">Pertandingan</option>
                         </Form.Select>
                     </Form.Group>
                     <Form.Group as={Col} md={3} controlId="tempat">
                         <Form.Label>Tempat</Form.Label>
-                        <Form.Control type="text" placeholder="Tempat" />
+                        <Form.Control
+                            type="text"
+                            name="tempat"
+                            value={formData.tempat}
+                            onChange={handleChange}
+                            required={true}
+                            disabled={loading}
+                        />
+                    </Form.Group>
+                    <Form.Group as={Col} md={3} controlId="iuran">
+                        <Form.Label>Iuran</Form.Label>
+                        <InputGroup>
+                            <InputGroup.Text>Rp</InputGroup.Text>
+                            <Form.Control
+                                type="number"
+                                name="iuran"
+                                value={formData.iuran}
+                                onChange={handleChange}
+                                disabled={loading || !isIuran}
+                                required={true}
+                            />
+                        </InputGroup>
+                    </Form.Group>
+                </Row>
+
+                <Row style={{ marginBottom: '15px' }}>
+                    <Form.Group as={Col} md={3} controlId="tglMulai">
+                        <Form.Label>Tanggal Mulai</Form.Label>
+                        <SansDatePicker
+                            value={formData.tgl_mulai}
+                            onChange={(date) => setFormData({ ...formData,tgl_mulai: date,})}
+                            onClear={() => setFormData({ ...formData,tgl_mulai: null,})}
+                            disabled={loading || type === 'Repeat' || !type === 'OneSession' || !type === 'LongSession'}
+                        />
+                    </Form.Group>
+                    <Form.Group as={Col} md={3} controlId="tglSelesai">
+                        <Form.Label>Tanggal Selesai</Form.Label>
+                        <SansDatePicker
+                            value={formData.tgl_selesai}
+                            onChange={(date) => setFormData({ ...formData,tgl_selesai: date })}
+                            onClear={() => setFormData({ ...formData,tgl_selesai: null })}
+                            disabled={loading || type === 'Repeat' || type === 'OneSession' || !type === 'LongSession'}
+                        />
                     </Form.Group>
 
+                    <Form.Group as={Col} md={2} controlId="jamMulai">
+                        <Form.Label>Jam Mulai</Form.Label>
+                        <SansTimePicker
+                            value={formData.jam_mulai}
+                            disabled={loading || isAllDay || !type === 'Repeat'}
+                            onChange={(time) => setFormData({ ...formData,jam_mulai: time })}
+                            onClear={() => setFormData({ ...formData,jam_mulai: null })}
+                        />
+                    </Form.Group>
+                    <Form.Group as={Col} md={2} controlId="jamSelesai">
+                        <Form.Label>Jam Selesai</Form.Label>
+                        <SansTimePicker
+                            value={formData.jam_selesai}
+                            disabled={loading || isAllDay || !type === 'Repeat'}
+                            onChange={(time) => setFormData({ ...formData,jam_selesai: time })}
+                            onClear={() => setFormData({ ...formData,jam_selesai: null })}
+                        />
+                    </Form.Group>
+                    <Form.Group as={Col} md={2} controlId="hari">
+                        <Form.Label>Hari</Form.Label>
+                        <SansDaysDropdown
+                            value={formData.hari}
+                            required={true}
+                            disabled={loading || !type === 'Repeat' || type === 'OneSession' || type === 'LongSession'}
+                            onChange={handleChange}
+                        />
+                    </Form.Group>
                 </Row>
-                <Row style={{ marginBottom: '15px' }}>
-                    {type === 'sekali' && (
-                        <>
-                            <Form.Group as={Col} md={3} controlId="tanggalMulai">
-                                <Form.Label>Tanggal</Form.Label>
-                                <Form.Group style={{ display: 'flex' }}>
-                                    <DateTimePicker
-                                        format="dd/MM/yy"
-                                        clearIcon={null}
-                                        calendarIcon={null}
-                                        disableClock={true}
-                                        onChange={handleChangeStartDate}
-                                        value={startDate}
-                                    />
-                                    {startDate !== null && (
-                                        <Button variant="danger" onClick={handleClearStartDate} style={{ display: 'flex',alignItems: 'center',justifyContent: 'center',padding: '9px',marginLeft: '5px' }}>
-                                            <Trash style={{ width: '18px',height: '16px' }} />
-                                        </Button>
-                                    )}
-                                </Form.Group>
-                            </Form.Group>
-                        </>
-                    )}
-                    {type === 'berulang' && (
-                        <>
-                            <Form.Group as={Col} md={3} controlId="tanggalMulai">
-                                <Form.Label>Tanggal Mulai</Form.Label>
-                                <Form.Group style={{ display: 'flex' }}>
-                                    <DateTimePicker
-                                        format="dd/MM/yy"
-                                        clearIcon={null}
-                                        calendarIcon={null}
-                                        disableClock={true}
-                                        onChange={handleChangeStartDate}
-                                        value={startDate}
-                                    />
-                                    {startDate !== null && (
-                                        <Button variant="danger" onClick={handleClearStartDate} style={{ display: 'flex',alignItems: 'center',justifyContent: 'center',padding: '9px',marginLeft: '5px' }}>
-                                            <Trash style={{ width: '18px',height: '16px' }} />
-                                        </Button>
-                                    )}
-                                </Form.Group>
-                            </Form.Group>
-                            <Form.Group as={Col} md={2} controlId="hari">
-                                <Form.Label>Hari</Form.Label>
-                                <SansDayCheckBox
-                                    value={dayCheckbox}
-                                    onChange={handleDayCheckboxChange}
-                                />
-                            </Form.Group>
-                        </>
-                    )}
-                    {type === 'berkelanjutan' && (
-                        <>
-                            <Form.Group as={Col} md={3} controlId="tanggalMulai">
-                                <Form.Label>Tanggal Mulai</Form.Label>
-                                <Form.Group style={{ display: 'flex' }}>
-                                    <DateTimePicker
-                                        format="dd/MM/yy"
-                                        clearIcon={null}
-                                        calendarIcon={null}
-                                        disableClock={true}
-                                        onChange={handleChangeStartDate}
-                                        value={startDate}
-                                    />
-                                    {startDate !== null && (
-                                        <Button variant="danger" onClick={handleClearStartDate} style={{ display: 'flex',alignItems: 'center',justifyContent: 'center',padding: '9px',marginLeft: '5px' }}>
-                                            <Trash style={{ width: '18px',height: '16px' }} />
-                                        </Button>
-                                    )}
-                                </Form.Group>
-                            </Form.Group>
-                            <Form.Group as={Col} md={3} controlId="tanggalSelesai">
-                                <Form.Label>Tanggal Selesai</Form.Label>
-                                <Form.Group style={{ display: 'flex' }}>
-                                    <DateTimePicker
-                                        format="dd/MM/yy"
-                                        clearIcon={null}
-                                        calendarIcon={null}
-                                        disableClock={true}
-                                        onChange={handleChangeEndDate}
-                                        value={endDate}
-                                    />
-                                    {endDate !== null && (
-                                        <Button variant="danger" onClick={handleClearEndDate} style={{ display: 'flex',alignItems: 'center',justifyContent: 'center',padding: '9px',marginLeft: '5px' }}>
-                                            <Trash style={{ width: '18px',height: '16px' }} />
-                                        </Button>
-                                    )}
-                                </Form.Group>
-                            </Form.Group>
-                        </>
-                    )}
-                    {!isAllDay && (
-                        <>
-                            <Form.Group as={Col} md={2} controlId="jamMulai">
-                                <Form.Label>Jam Mulai</Form.Label>
-                                <Form.Group style={{ display: 'flex' }}>
-                                    <SansTimePicker
-                                        value={startTime}
-                                        format="24h"
-                                        onChange={handleChangeStartTime}
-                                    />
-                                    {startTime !== null && (
-                                        <Button variant="danger" onClick={handleClearStartTime} className="button-delete">
-                                            <Trash className="trash-custom" />
-                                        </Button>
-                                    )}
-                                </Form.Group>
-                            </Form.Group>
-                            <Form.Group as={Col} md={2} controlId="jamSelesai">
-                                <Form.Label>Jam Selesai</Form.Label>
-                                <Form.Group style={{ display: 'flex' }}>
-                                    <SansTimePicker
-                                        value={endTime}
-                                        format="24h"
-                                        onChange={handleChangeEndTime}
-                                    />
-                                    {endTime !== null && (
-                                        <Button variant="danger" onClick={handleClearEndTime} className="button-delete">
-                                            <Trash className="trash-custom" />
-                                        </Button>
-                                    )}
-                                </Form.Group>
-                            </Form.Group>
-                        </>
-                    )}
-                    {isIuran && (
-                        <>
-                            <Form.Group as={Col} md={4} controlId="iuran">
-                                <Form.Label>Iuran</Form.Label>
-                                <InputGroup>
-                                    <InputGroup.Text>Rp</InputGroup.Text>
-                                    <Form.Control type="number" placeholder="Contoh : 10000" />
-                                </InputGroup>
-                            </Form.Group>
-                        </>
-                    )}
-                </Row>
-                <Button variant="primary" type="submit" style={{ width: '30%',margin: '5px 35% 0 35%' }}>
-                    Submit
-                </Button>
+                <Modal.Footer>
+                    <Button
+                        variant="primary"
+                        type="submit"
+                        disabled={loading}
+                        style={{ width: "30%",margin: "5px 35% 0 35%" }}
+                    >
+                        {loading ? (
+                            <Spinner animation="border" size="sm" />
+                        ) : 'Tambah'}
+                    </Button>
+                </Modal.Footer>
             </Form>
-        </Container >
+
+            <SansNotify
+                show={showNotify}
+                onHide={handleCloseNotify}
+                status={status}
+                onSuccess={successMessage}
+                onError={errorMessage}
+            />
+        </>
     );
 }
 

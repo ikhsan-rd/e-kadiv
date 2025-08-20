@@ -1,0 +1,30 @@
+/* SansDatePicker.css */
+.date-time-picker-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.date-time-picker-input {
+    flex: 1;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375;
+    /* Default border color */
+}
+
+.date-time-picker-input.disabled {
+    background-color: #e9ecef;
+    opacity: 1;
+    /* Grayish background for disabled */
+    cursor: not-allowed;
+}
+
+.date-time-picker-input.read-only {
+    cursor: default;
+    /* Default cursor for read-only */
+}
+
+.button-delete {
+    margin-left: 10px;
+}

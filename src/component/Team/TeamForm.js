@@ -14,7 +14,7 @@ function TeamForm()
     const [activeItem,setActiveItem] = useState('');
     const [loading,setLoading] = useState(false);
 
-    const currentJabatan = localStorage.getItem('jabatan');
+    const currentJabatan = sessionStorage.getItem('jabatan');
 
     useEffect(() =>
     {
@@ -66,31 +66,6 @@ function TeamForm()
                         Data Pelatih
                     </Nav.Link>
                 </Nav.Item>
-                {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
-                    <>
-                        <Nav.Item>
-                            <Nav.Link disabled='true' >
-                                |
-                            </Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item>
-                            <Nav.Link
-                                className={`nav-link ${activeItem === 'atlet/input' ? 'active' : ''}`}
-                                onClick={() => handleNavItemClick('atlet/input')}
-                            >
-                                Tambah Atlet
-                            </Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item>
-                            <Nav.Link
-                                className={`nav-link ${activeItem === 'pelatih/input' ? 'active' : ''}`}
-                                onClick={() => handleNavItemClick('pelatih/input')}
-                            >
-                                Tambah Pelatih
-                            </Nav.Link>
-                        </Nav.Item>
-                    </>
-                )}
             </Nav>
 
 
@@ -100,14 +75,6 @@ function TeamForm()
 
             {activeItem === 'pelatih/table' && (
                 <PelatihTable />
-            )}
-
-            {activeItem === 'atlet/input' && (
-                <AtletInput />
-            )}
-
-            {activeItem === 'pelatih/input' && (
-                <PelatihInput />
             )}
         </Container>
     );

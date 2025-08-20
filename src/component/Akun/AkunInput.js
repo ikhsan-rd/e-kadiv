@@ -1,14 +1,16 @@
 import "../../css/button.scss";
-import React,{ useState,useCallback,useEffect,useRef } from "react";
-import { Row,Form,Col,Button,Container,Modal } from "react-bootstrap";
+import React,{ useState,useEffect,useRef } from "react";
+import { Row,Form,Col,Button,Container,Spinner,Modal } from "react-bootstrap";
 import { Eye,EyeSlash } from "react-bootstrap-icons";
 import axios from "axios";
-import Cropper from "react-easy-crop";
-import {SansCropImage} from "../ComponentCustom/SansComps";
-import { useNavigate } from "react-router-dom";
+import { SansCropImage,SansDivisiDropdown,SansNotify } from "../ComponentCustom/SansComps";
 
 const AkunInput = () =>
 {
+    const currentToken = sessionStorage.getItem('token');
+
+    const [loading,setLoading] = useState(false);
+
     const [formData,setFormData] = useState({
         nomor_anggota: "",
         nama: "",
@@ -18,30 +20,17 @@ const AkunInput = () =>
         foto: null,
     });
 
-    const [passwordVisible,setPasswordVisible] = useState(false);
-    const [loading,setLoading] = useState(false);
-    const [success,setSuccess] = useState(null);
-    const [error,setError] = useState(null);
-    const navigate = useNavigate();
-
-
-    const [crop,setCrop] = useState({ x: 0,y: 0 });
-    const [zoom,setZoom] = useState(1);
-    const [croppedArea,setCroppedArea] = useState(null);
-    const [imageSrc,setImageSrc] = useState(null);
-    const [showCropper,setShowCropper] = useState(false);
-    const [imageFile,setImageFile] = useState(null);
-    const fileInputRef = useRef(null);
-
+    // Handle perubahan data pada form
     const handleChange = (e) =>
     {
         const { name,value,type,files } = e.target;
-        setFormData((prevData) => ({
+        setFormData(prevData => ({
             ...prevData,
             [name]: type === "file" ? files[0] : value,
         }));
     };
 
+    // Handle jika jabatan puspendiv
     useEffect(() =>
     {
         let newDivisi = formData.divisi;
@@ -54,21 +43,18 @@ const AkunInput = () =>
             newDivisi = "";
         }
 
-        setFormData((prevState) => ({
+        setFormData(prevState => ({
             ...prevState,
             divisi: newDivisi,
         }));
     },[formData.jabatan,formData.divisi]);
 
-    const onCropComplete = useCallback(
-        (croppedAreaPercentage,croppedAreaPixels) =>
-        {
-            setCroppedArea(croppedAreaPixels);
-        },
-        []
-    );
+    // Handle Image crop dan cancel
+    const [imageSrc,setImageSrc] = useState(null);
+    const [showCropper,setShowCropper] = useState(false);
+    const fileInputRef = useRef(null);
 
-    const handleImageChange = async (e) =>
+    const handleImageChange = (e) =>
     {
         const file = e.target.files[0];
         if (file)
@@ -83,62 +69,47 @@ const AkunInput = () =>
         }
     };
 
-    const handleCrop = async () =>
+    const handleCropComplete = (croppedBlob) =>
     {
-        if (croppedArea)
-        {
-            const croppedBlob = await SansCropImage(imageSrc,croppedArea);
-            setImageFile(croppedBlob);
-            setShowCropper(false);
-        }
+        setFormData(prevData => ({
+            ...prevData,
+            foto: croppedBlob,
+        }));
+        setImageSrc(null);
+        setShowCropper(false);
     };
 
-    const handleCloseCrop = () =>
+    const handleCancel = () =>
     {
-        setShowCropper(false);
         setImageSrc(null);
-        setCroppedArea(null);
+        setFormData(prevData => ({
+            ...prevData,
+            foto: null,
+        }));
         if (fileInputRef.current)
         {
-            fileInputRef.current.value = "";
+            fileInputRef.current.value = '';
         }
     };
 
+    // Handle see password
+    const [passwordVisible,setPasswordVisible] = useState(false);
     const togglePasswordVisibility = () =>
     {
         setPasswordVisible(!passwordVisible);
     };
 
+    // Submit
     const handleSubmit = async (e) =>
     {
         e.preventDefault();
         setLoading(true);
 
         const data = new FormData();
-        Object.keys(formData).forEach((key) =>
+        Object.keys(formData).forEach(key =>
         {
             data.append(key,formData[key]);
         });
-
-        if (imageFile)
-        {
-            data.append('foto',imageFile,formData.nomor_anggota);
-        }
-
-        console.log('Form Data Entries:');
-        for (let pair of data.entries())
-        {
-            const [key,value] = pair;
-            let valueType = typeof value;
-
-            // Check if value is a File object
-            if (value instanceof File)
-            {
-                valueType = 'File';
-            }
-
-            console.log(`${key}: ${value} (Type: ${valueType})`);
-        }
 
         try
         {
@@ -147,19 +118,15 @@ const AkunInput = () =>
                 withCredentials: true,
             });
 
-            // add akun request
+            // Add akun request
             await axios.post("http://localhost:8000/api/register",data,{
                 headers: {
                     "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${currentToken}`,
                 },
                 withCredentials: true,
             });
 
-            setSuccess("Registration successful!");
-            setError(null);
-            alert("Registration successful!");
-
-            // Clear form and image data after successful submission
             setFormData({
                 nomor_anggota: "",
                 nama: "",
@@ -169,33 +136,52 @@ const AkunInput = () =>
                 foto: null,
             });
             setImageSrc(null);
-            setImageFile(null);
 
             if (fileInputRef.current)
             {
                 fileInputRef.current.value = "";
             }
-
+            setSuccessMessage("Data akun berhasil ditambahkan");
+            setStatus('success');
+            setShowNotify(true);
         } catch (err)
         {
-            setError("Registration failed. Please try again.");
-            setSuccess(null);
-            alert("Registration failed. Please try again.");
+            setStatus('error');
+            setShowNotify(true);
+            if (err.response && err.response.data.message)
+            {
+                setErrorMessage(err.response.data.message);
+            } else
+            {
+                setErrorMessage("Terjadi Kesalahan");
+                console.error("Response data:",err.response.data);
+            }
+        } finally 
+        {
+            setLoading(false);
         }
-        setLoading(false);
+    };
+
+    //notify
+    const [status,setStatus] = useState(null);
+    const [showNotify,setShowNotify] = useState(false);
+    const [successMessage,setSuccessMessage] = useState("");
+    const [errorMessage,setErrorMessage] = useState("");
+
+    const handleCloseNotify = () =>
+    {
+        setShowNotify(false);
+        setSuccessMessage("");
+        setErrorMessage("");
+        setTimeout(() =>
+        {
+            setStatus(null);
+        },100);
     };
 
     return (
-        <Container
-            style={{
-                backgroundColor: "whitesmoke",
-                padding: "2%",
-                borderRadius: "10px",
-            }}
-        >
-            <Form style={{ marginTop: "15px" }} onSubmit={handleSubmit}>
-                <h2>Tambah Akun</h2>
-                {error && <p style={{ color: "red" }}>{error}</p>}
+        <>
+            <Form onSubmit={handleSubmit}>
                 <Row style={{ marginBottom: "15px" }}>
                     <Form.Group as={Col} md={4}>
                         <Form.Label>Nama Lengkap</Form.Label>
@@ -206,6 +192,7 @@ const AkunInput = () =>
                             value={formData.nama}
                             onChange={handleChange}
                             required
+                            disabled={loading}
                         />
                     </Form.Group>
                     <Form.Group as={Col} md={4}>
@@ -217,6 +204,7 @@ const AkunInput = () =>
                             value={formData.nomor_anggota}
                             onChange={handleChange}
                             required
+                            disabled={loading}
                         />
                     </Form.Group>
                     <Form.Group as={Col} md={4}>
@@ -233,6 +221,8 @@ const AkunInput = () =>
                                 value={formData.fe_password}
                                 onChange={handleChange}
                                 required
+                                disabled={loading}
+                                minLength={8}
                             />
                             <Button
                                 variant="secondary"
@@ -240,7 +230,7 @@ const AkunInput = () =>
                                 className="toggle-password-button"
                                 style={{ marginRight: "1px" }}
                             >
-                                {passwordVisible ? <Eye /> : <EyeSlash />}
+                                {passwordVisible ? <Eye className="eye-password" /> : <EyeSlash className="eyeSlash-password" />}
                             </Button>
                         </div>
                     </Form.Group>
@@ -254,6 +244,7 @@ const AkunInput = () =>
                             value={formData.jabatan}
                             onChange={handleChange}
                             required
+                            disabled={loading}
                         >
                             <option value="">Pilih Jabatan</option>
                             <option value="Puspendiv">Puspendiv</option>
@@ -263,30 +254,12 @@ const AkunInput = () =>
                     </Form.Group>
                     <Form.Group as={Col} md={4}>
                         <Form.Label>Divisi</Form.Label>
-                        <Form.Control
-                            as="select"
-                            name="divisi"
-                            value={
-                                formData.jabatan === "Puspendiv"
-                                    ? "-"
-                                    : formData.divisi
-                            }
+                        <SansDivisiDropdown
+                            value={formData.jabatan === "Puspendiv" ? "-" : formData.divisi}
                             onChange={handleChange}
-                            disabled={formData.jabatan === "Puspendiv"}
+                            disabled={formData.jabatan === "Puspendiv" || loading}
                             required={formData.jabatan !== "Puspendiv"}
-                        >
-                            <option value="">Pilih divisi</option>
-                            <option value="Sepak Bola">Sepak Bola</option>
-                            <option value="Bulu Tangkis">Bulu Tangkis</option>
-                            <option value="Bola Voli">Bola Voli</option>
-                            <option value="Futsal">Futsal</option>
-                            <option value="Beladiri">Bela Diri(Silat)</option>
-                            {formData.jabatan === "Puspendiv" && (
-                                <option value="-" selected>
-                                    -
-                                </option>
-                            )}
-                        </Form.Control>
+                        />
                     </Form.Group>
                     <Form.Group as={Col} md={4}>
                         <Form.Label>Foto</Form.Label>
@@ -296,58 +269,41 @@ const AkunInput = () =>
                             onChange={handleImageChange}
                             required
                             ref={fileInputRef}
+                            disabled={loading}
                         />
                     </Form.Group>
                 </Row>
-                <Button
-                    variant="primary"
-                    type="submit"
-                    disabled={loading}
-                    style={{ width: "30%",margin: "5px 35% 0 35%" }}
-                >
-                    {loading ? "Menambahkan..." : "Tambah Akun"}
-                </Button>
-            </Form>
-
-            <Modal
-                show={showCropper}
-                onHide={() => setShowCropper(false)}
-                centered
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Crop Foto</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div
-                        style={{
-                            position: "relative",
-                            width: "100%",
-                            height: "400px",
-                        }}
-                    >
-                        {imageSrc && (
-                            <Cropper
-                                image={imageSrc}
-                                crop={crop}
-                                zoom={zoom}
-                                aspect={1}
-                                onCropChange={setCrop}
-                                onZoomChange={setZoom}
-                                onCropComplete={onCropComplete}
-                            />
-                        )}
-                    </div>
-                </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseCrop}>
-                        Close
-                    </Button>
-                    <Button variant="primary" onClick={handleCrop}>
-                        Crop
+                    <Button
+                        variant="primary"
+                        type="submit"
+                        disabled={loading}
+                        style={{ width: "30%",margin: "5px 35% 0 35%" }}
+                    >
+                        {loading ? <Spinner animation="border" size="sm" /> : 'Submit'}
                     </Button>
                 </Modal.Footer>
-            </Modal>
-        </Container>
+            </Form>
+
+            {imageSrc && (
+                <SansCropImage
+                    imageSrc={imageSrc}
+                    show={showCropper}
+                    onHide={() => setShowCropper(false)}
+                    onCropComplete={handleCropComplete}
+                    onCancel={handleCancel}
+                    rasio={1}
+                />
+            )}
+
+            <SansNotify
+                show={showNotify}
+                onHide={handleCloseNotify}
+                status={status}
+                onSuccess={successMessage}
+                onError={errorMessage}
+            />
+        </>
     );
 };
 
