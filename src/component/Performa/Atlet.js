@@ -1,84 +1,179 @@
-import React,{ useState } from 'react';
-import { Container,Table,Form,Row,Col,Button,Card } from 'react-bootstrap';
+import React,{ useState,useEffect } from 'react';
+import { Container,Table,Form,Row,Col,Button,Card,Modal,Spinner } from 'react-bootstrap';
 import { Radar } from 'react-chartjs-2';
 import
-    {
-        Chart as ChartJS,
-        RadarController,
-        RadialLinearScale,
-        PointElement,
-        LineElement,
-        Filler,
-        Tooltip,
-        Legend
-    } from 'chart.js';
-import { PersonCircle } from 'react-bootstrap-icons';
+{
+    Chart as ChartJS,
+    RadarController,
+    RadialLinearScale,
+    PointElement,
+    LineElement,
+    Filler,
+    Tooltip,
+    Legend
+} from 'chart.js';
+import
+{
+    SansDivisiDropdown,
+    SansLoadOrNotImage,
+    SansSortableTable,
+    SansSearch,
+    SansFormatDate,
+    SansButtonEdit,
+    SansNotify
+} from '../ComponentCustom/SansComps';
+import axios from 'axios';
 
-// Register the components used in the radar chart
 ChartJS.register(RadarController,RadialLinearScale,PointElement,LineElement,Filler,Tooltip,Legend);
 
 function PerformaAtlet()
 {
-    // Data atlet dengan 2 atlet per divisi
-    const [atletData,setAtletData] = useState({
-        'Sepak Bola': [
-            { id: 1,nama: 'Andi',divisi: 'Sepak Bola',jenisKelamin: 'Laki-laki',skill: { dribble: 7,passing: 8,shoot: 6,defense: 5,heading: 8,goalkeeping: 4 } },
-            { id: 2,nama: 'Budi',divisi: 'Sepak Bola',jenisKelamin: 'Laki-laki',skill: { dribble: 8,passing: 7,shoot: 7,defense: 6,heading: 7,goalkeeping: 5 } }
-        ],
-        'Bola Voli': [
-            { id: 3,nama: 'Cindy',divisi: 'Bola Voli',jenisKelamin: 'Perempuan',skill: { servis: 7,passing: 8,seting: 6,smash: 7,block: 5,digging: 8 } },
-            { id: 4,nama: 'Dewi',divisi: 'Bola Voli',jenisKelamin: 'Perempuan',skill: { servis: 6,passing: 7,seting: 7,smash: 6,block: 8,digging: 7 } }
-        ],
-        'Bulu Tangkis': [
-            { id: 5,nama: 'Eko',divisi: 'Bulu Tangkis',jenisKelamin: 'Laki-laki',skill: { smash: 8,clear: 7,drop: 6,serve: 9,footwork: 8,defense: 6 } },
-            { id: 6,nama: 'Fani',divisi: 'Bulu Tangkis',jenisKelamin: 'Perempuan',skill: { smash: 7,clear: 8,drop: 7,serve: 6,footwork: 9,defense: 7 } }
-        ],
-        'Futsal': [
-            { id: 7,nama: 'Gina',divisi: 'Futsal',jenisKelamin: 'Perempuan',skill: { dribble: 8,passing: 7,shoot: 6,defense: 8,goalkeeping: 5,movement: 7 } },
-            { id: 8,nama: 'Hadi',divisi: 'Futsal',jenisKelamin: 'Laki-laki',skill: { dribble: 7,passing: 8,shoot: 7,defense: 6,goalkeeping: 6,movement: 8 } }
-        ],
-        'Silat': [
-            { id: 9,nama: 'Joni',divisi: 'Silat',jenisKelamin: 'Laki-laki',skill: { pukulan: 7,tendangan: 8,pertahanan: 6,kuncian: 7,elakan: 6,teknikJatuhan: 8 } },
-            { id: 10,nama: 'Kiki',divisi: 'Silat',jenisKelamin: 'Perempuan',skill: { pukulan: 6,tendangan: 7,pertahanan: 8,kuncian: 6,elakan: 7,teknikJatuhan: 7 } }
-        ],
-        'Bola Basket': [
-            { id: 11,nama: 'Alex',divisi: 'Bola Basket',jenisKelamin: 'Laki-laki',skill: { dribble: 8,passing: 7,shoot: 9,defense: 8,rebound: 7,assist: 6 } },
-            { id: 12,nama: 'Bella',divisi: 'Bola Basket',jenisKelamin: 'Perempuan',skill: { dribble: 7,passing: 8,shoot: 8,defense: 7,rebound: 6,assist: 9 } }
-        ]
+    const currentJabatan = sessionStorage.getItem('jabatan');
+    const currentDivisi = sessionStorage.getItem('divisi');
+    const currentToken = sessionStorage.getItem('token');
+
+    const [loading,setLoading] = useState(false);
+    const [selectedAtlet,setSelectedAtlet] = useState(null);
+    const [filter,setFilter] = useState('');
+    const [searchTerm,setSearchTerm] = useState('');
+    const [filtered,setFiltered] = useState([]);
+
+    const [editedSkills,setEditedSkills] = useState({
+        skill_i: 0,
+        skill_ii: 0,
+        skill_iii: 0,
+        skill_iv: 0,
+        skill_v: 0,
+        skill_vi: 0
     });
 
-    const [selectedDivisi,setSelectedDivisi] = useState('');
-    const [selectedAtlet,setSelectedAtlet] = useState(null);
+    const skillLabels = {
+        'Sepak Bola': ['Dribble','Passing','Shoot','Defense','Heading','Goalkeeping'],
+        'Bola Voli': ['Servis','Passing','Seting','Smash','Block','Digging'],
+        'Bulu Tangkis': ['Smash','Clear','Drop','Serve','Footwork','Defense'],
+        'Futsal': ['Dribble','Passing','Shoot','Defense','Goalkeeping','Movement'],
+        'Silat': ['Pukulan','Tendangan','Pertahanan','Kuncian','Elakkan','Jatuhan'],
+        'Bola Basket': ['Dribble','Passing','Shoot','Defense','Rebound','Assist']
+    };
 
-    // Mengubah data untuk grafik radar berdasarkan atlet yang dipilih
-    const getRadarData = (skills = {}) =>
+    const [tableData,setTableData] = useState([]);
+    const { sortedData,requestSort,getSortIcon } = SansSortableTable({
+        data: tableData,
+        defaultSort: 'nama',
+        type: 'ascending'
+    });
+
+    useEffect(() =>
     {
-        const skillLabels = {
-            'Sepak Bola': ['Dribble','Passing','Shoot','Defense','Heading','Goalkeeping'],
-            'Bola Voli': ['Servis','Passing','Seting','Smash','Block','Digging'],
-            'Bulu Tangkis': ['Smash','Clear','Drop','Serve','Footwork','Defense'],
-            'Futsal': ['Dribble','Passing','Shoot','Defense','Goalkeeping','Movement'],
-            'Silat': ['Pukulan','Tendangan','Pertahanan','Kuncian','Elakkan','Jatuhan'],
-            'Bola Basket': ['Dribble','Passing','Shoot','Defense','Rebound','Assist']
-        };
+        fetchTableData();
+    },[]);
 
-        const currentSkills = skillLabels[selectedDivisi] || [];
+    useEffect(() =>
+    {
+        filterAndSearchData();
+    },[filter,searchTerm,tableData]);
+
+    const fetchTableData = async () =>
+    {
+        setLoading(true);
+        try
+        {
+            const response = await axios.get('http://localhost:8000/api/performa-atlet',{
+                headers: {
+                    'Authorization': `Bearer ${currentToken}`,
+                },
+            });
+
+            const formattedData = response.data.data.map(item => ({
+                ...item,
+                formatted_tgl_lahir: SansFormatDate(item.tgl_lahir),
+            }));
+
+            setTableData(formattedData);
+            console.log(formattedData);
+        } catch (error)
+        {
+            console.error('Error fetching data:',error);
+        } finally
+        {
+            setLoading(false);
+        }
+    };
+
+    const filterAndSearchData = () =>
+    {
+        let filteredData = tableData;
+
+        if (currentDivisi === '-')
+        {
+            if (filter !== '')
+            {
+                filteredData = filteredData.filter(item => item.divisi === filter);
+            }
+        } else
+        {
+            filteredData = filteredData.filter(item => item.divisi === currentDivisi);
+        }
+
+        if (searchTerm)
+        {
+            const lowerSearch = searchTerm.toLowerCase();
+            filteredData = filteredData.filter(item =>
+                item.nama.toLowerCase().includes(lowerSearch) ||
+                item.tempat_lahir.toLowerCase().includes(lowerSearch) ||
+                item.tgl_lahir.toString().includes(searchTerm) ||
+                item.jk.toLowerCase().includes(lowerSearch) ||
+                item.jurusan.toLowerCase().includes(lowerSearch) ||
+                calculateSemester(item.angkatan).toString().includes(searchTerm)
+            );
+        }
+
+        setFiltered(filteredData);
+    };
+
+    const handleClearAll = () =>
+    {
+        setFilter('');
+        setSearchTerm('');
+    };
+
+    const calculateSemester = (angkatan) =>
+    {
+        const currentYear = new Date().getFullYear();
+        const yearsElapsed = currentYear - angkatan;
+        const currentSemester = yearsElapsed * 2 + 1;
+
+        const isFirstHalfOfYear = new Date().getMonth() < 6;
+        return isFirstHalfOfYear ? currentSemester : currentSemester + 1;
+    };
+
+    const getRadarData = (atlet) =>
+    {
+        if (!atlet) return { labels: [],datasets: [] };
+        const labels = skillLabels[atlet.divisi] || [];
+        const skills = [
+            atlet.skill_i || 0,
+            atlet.skill_ii || 0,
+            atlet.skill_iii || 0,
+            atlet.skill_iv || 0,
+            atlet.skill_v || 0,
+            atlet.skill_vi || 0
+        ];
 
         return {
-            labels: currentSkills,
+            labels,
             datasets: [
                 {
-                    label: '', // Empty label to hide it
-                    data: currentSkills.map(skill => skills[skill.toLowerCase().replace(/\s+/g,'')] || 0),
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Radar chart background color
-                    borderColor: 'rgba(54, 162, 235, 1)', // Radar chart border color
+                    label: 'Skill Set',
+                    data: skills,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1,
-                }
+                },
             ],
         };
     };
 
-    // Opsi untuk radar chart
     const radarOptions = {
         scales: {
             r: {
@@ -86,34 +181,34 @@ function PerformaAtlet()
                     display: true,
                 },
                 grid: {
-                    color: 'rgba(0, 0, 0, 0.1)', // Adjust grid color
+                    color: 'rgba(0, 0, 0, 0.1)',
                 },
                 ticks: {
-                    display: false, // Hide the ticks
-                    stepSize: 2, // Control step size
+                    display: false,
+                    stepSize: 2,
                 },
                 suggestedMin: 0,
                 suggestedMax: 10,
                 pointLabels: {
                     font: {
-                        size: 12, // Adjust the font size for point labels
+                        size: 12,
                     },
                 },
                 circular: {
                     display: true,
-                    lineWidth: 1, // Adjust grid line width
+                    lineWidth: 1,
                 },
             },
         },
         plugins: {
             legend: {
-                display: false, // Hide the legend
+                display: false,
             },
             tooltip: {
                 callbacks: {
                     label: (tooltipItem) =>
                     {
-                        return tooltipItem.raw.toString(); // Show only value in tooltip
+                        return tooltipItem.raw.toString();
                     },
                 },
             },
@@ -149,118 +244,253 @@ function PerformaAtlet()
         }
     };
 
-    // Handle the division change
-    const handleDivisionChange = (event) =>
+    //EDIT
+    const [showModal,setShowModal] = useState(false);
+
+    const handleSkillChange = (e) =>
     {
-        setSelectedDivisi(event.target.value);
-        setSelectedAtlet(null); // Reset selected athlete when division changes
+        setEditedSkills({
+            ...editedSkills,
+            [e.target.name]: parseInt(e.target.value)
+        });
     };
 
-    // Handle the image error
-    const handleImageError = () =>
+    const handleRowClick = (atlet) =>
     {
-        setIsImageLoaded(false);
+        setSelectedAtlet(atlet);
+
     };
 
-    // Data untuk foto atlet
-    const atletFoto = "handle ambil data foto atlet";
-    const [isImageLoaded,setIsImageLoaded] = useState(true);
+    const [selectedData,setSelectedData] = useState(null);
+    const handleEditClick = (atlet) =>
+    {
+        setSelectedAtlet(atlet);
+        setSelectedData({
+            id: atlet.id,
+            atlet_id: atlet.id,
+        })
+
+        setEditedSkills({
+            skill_i: atlet.skill_i || 0,
+            skill_ii: atlet.skill_ii || 0,
+            skill_iii: atlet.skill_iii || 0,
+            skill_iv: atlet.skill_iv || 0,
+            skill_v: atlet.skill_v || 0,
+            skill_vi: atlet.skill_vi || 0
+        });
+        setShowModal(true);
+        console.log(atlet);
+        console.log(editedSkills);
+    };
+
+    const handleSaveSkills = async (event) =>
+    {
+        event.preventDefault();
+        setLoading(true);
+
+        try
+        {
+            console.log(editedSkills)
+            const dataToSend = {
+                ...editedSkills
+            };
+
+            console.log('Upserting record:',dataToSend);
+
+            // Upsert the record using the backend endpoint
+            await axios.post(`http://localhost:8000/api/performa-atlet/upsert`,dataToSend,{
+                headers: {
+                    'Authorization': `Bearer ${currentToken}`,
+                },
+            });
+
+            setSuccessMessage("Data berhasil diperbarui atau ditambahkan");
+            setStatus('success');
+            setShowNotify(true);
+            fetchTableData();
+            setShowModal(false);
+        } catch (error)
+        {
+            setErrorMessage("Terjadi Kesalahan");
+            setStatus('error');
+            setShowNotify(true);
+            console.error("Save failed:",error);
+            if (error.response)
+            {
+                console.error("Response data:",error.response.data);
+            }
+        } finally
+        {
+            setLoading(false);
+        }
+    };
+
+    const handleCloseModalEdit = () =>
+    {
+        setShowModal(false);
+    }
+
+    //notify
+    const [status,setStatus] = useState(null);
+    const [showNotify,setShowNotify] = useState(false);
+    const [successMessage,setSuccessMessage] = useState("");
+    const [errorMessage,setErrorMessage] = useState("");
+
+    const handleCloseNotify = () =>
+    {
+        setShowNotify(false);
+        setSuccessMessage("");
+        setErrorMessage("");
+        setTimeout(() =>
+        {
+            setStatus(null);
+        },100);
+    };
 
     return (
-        <Container style={{ backgroundColor: 'whitesmoke',padding: '2%',borderRadius: '10px' }}>
-            <Form style={{ marginTop: '15px' }}>
-                <h2 style={{ marginBottom: '15px' }}>Performa Atlet</h2>
-                <Row style={{ marginBottom: '10px' }}>
-                    <Form.Group as={Col} md={2} controlId="filterDivisi">
-                        <Form.Select onChange={handleDivisionChange}>
-                            <option value="">Pilih Divisi</option>
-                            <option value="Sepak Bola">Sepak Bola</option>
-                            <option value="Bola Voli">Bola Voli</option>
-                            <option value="Bola Basket">Bola Basket</option>
-                            <option value="Bulu Tangkis">Bulu Tangkis</option>
-                            <option value="Futsal">Futsal</option>
-                            <option value="Silat">Silat</option>
-                        </Form.Select>
-                    </Form.Group>
-                    <Form.Group as={Col} md={3} controlId="searchTerm">
-                        <Form.Control type="text" placeholder="Search" />
-                    </Form.Group>
-                    <Form.Group as={Col} md={2}>
-                        <Button>Clear All</Button>
-                    </Form.Group>
-                </Row>
-                {selectedDivisi && (
+        <>
+            <Container style={{ backgroundColor: 'whitesmoke',padding: '2%',borderRadius: '10px' }}>
+                <Form style={{ marginTop: '15px' }}>
+                    <h2 style={{ marginBottom: '15px' }}>Performa Atlet</h2>
+                    <Row style={{ marginBottom: '10px' }}>
+                        <Form.Group as={Col} md={2} controlId="filterDivisi">
+                            <SansDivisiDropdown
+                                value={filter}
+                                onChange={(e) => setFilter(e.target.value)}
+                                required
+                                disabled={loading || currentDivisi !== '-'}
+                            />
+                        </Form.Group>
+                        <Form.Group as={Col} md={3}>
+                            <SansSearch
+                                searchTerm={searchTerm}
+                                onSearchChange={setSearchTerm}
+                            />
+                        </Form.Group>
+                        <Form.Group as={Col} md={2} controlId="clearFilters">
+                            <Button onClick={handleClearAll} disabled={loading}>
+                                Clear All
+                            </Button>
+                        </Form.Group>
+                    </Row>
                     <Row>
                         <Form.Group as={Col} md={6}>
                             <Table striped bordered hover>
                                 <thead>
                                     <tr className='text-center'>
                                         <th>No</th>
-                                        <th>Nama</th>
-                                        <th>Divisi</th>
-                                        <th>Jenis Kelamin</th>
-                                        <th>Action</th>
+                                        <th onClick={() => requestSort('nama')}>
+                                            Nama {getSortIcon('nama')}
+                                        </th>
+                                        <th onClick={() => requestSort('divisi')}>
+                                            Divisi {getSortIcon('divisi')}
+                                        </th>
+                                        <th onClick={() => requestSort('jk')}>
+                                            L/P {getSortIcon('jk')}
+                                        </th>
+                                        {/* <th>Action</th> */}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {atletData[selectedDivisi].map((atlet,index) => (
-                                        <tr
-                                            key={atlet.id}
-                                            onClick={() => setSelectedAtlet(atlet)}
-                                            style={{
-                                                cursor: 'pointer',
-                                                backgroundColor: selectedAtlet?.id === atlet.id ? 'rgba(54, 162, 235, 0.2)' : 'transparent'
-                                            }}
-                                        >
+                                    {filtered.map((atlet,index) => (
+                                        <tr key={index} onClick={() => handleRowClick(atlet)}>
                                             <td className='text-center'>{index + 1}</td>
                                             <td>{atlet.nama}</td>
                                             <td>{atlet.divisi}</td>
-                                            <td>{atlet.jenisKelamin}</td>
-                                            <td className='text-center'>
-                                                <Button variant="warning">Update</Button>
-                                            </td>
+                                            <td className='text-center'>{atlet.jk}</td>
+                                            {/* <td>
+                                                <SansButtonEdit
+                                                    onClick={() => handleEditClick(atlet)}
+                                                />
+                                            </td> */}
                                         </tr>
                                     ))}
                                 </tbody>
                             </Table>
                         </Form.Group>
-                        <Form.Group as={Col} md={3}>
-                            <Card>
-                                <Card.Body>
-                                    <Form.Group as={Col}>
-                                        {isImageLoaded ? (
-                                            atletFoto ? (
-                                                <img
-                                                    src={atletFoto}
-                                                    alt="User"
-                                                    style={{ width: '40px',height: '40px',borderRadius: '50%' }}
-                                                    onError={handleImageError}
-                                                />
-                                            ) : (
-                                                <PersonCircle style={{ width: '36px',height: '36px',color: '#dee2e6' }} />
-                                            )
-                                        ) : (
-                                            <PersonCircle style={{ width: '36px',height: '36px',color: '#dee2e6' }} />
-                                        )}
-                                    </Form.Group>
-                                </Card.Body>
-                            </Card>
-                        </Form.Group>
-                        <Form.Group as={Col} md={3}>
-                            <Card>
-                                <Card.Body>
-                                    <Radar
-                                        data={getRadarData(selectedAtlet ? selectedAtlet.skill : {})}
-                                        options={radarOptions}
-                                        plugins={[valuePlugin]}
-                                    />
-                                </Card.Body>
-                            </Card>
-                        </Form.Group>
+                        {selectedAtlet && (
+                            <>
+                                <Form.Group as={Col} md={3}>
+                                    <Card>
+                                        <Card.Header centered>
+                                            <Row>
+                                                <Form.Group as={Col} className='text-center'>
+                                                    <SansLoadOrNotImage
+                                                        src={selectedAtlet.foto}
+                                                        width='60px'
+                                                        height='80px'
+                                                        shape='square'
+                                                    />
+                                                </Form.Group>
+                                            </Row>
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <Card.Title>{selectedAtlet.nama}</Card.Title>
+                                            <Card.Text>
+                                                Jurusan: {selectedAtlet.jurusan}<br />
+                                                Semester: {calculateSemester(selectedAtlet.angkatan)}<br />
+                                                Kategori: {selectedAtlet.kategori ? selectedAtlet.kategori : '-'}<br />
+                                            </Card.Text>
+                                        </Card.Body>
+                                    </Card>
+                                </Form.Group>
+                                <Form.Group as={Col} md={3} controlId="athleteRadar">
+                                    <Card md={3}>
+                                        <Radar
+                                            data={getRadarData(selectedAtlet)}
+                                            options={radarOptions}
+                                            plugins={[valuePlugin]}
+                                        />
+                                    </Card>
+                                </Form.Group>
+                            </>
+                        )}
                     </Row>
-                )}
-            </Form>
-        </Container>
+                </Form>
+            </Container>
+
+            <Modal show={showModal} onHide={handleCloseModalEdit}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Skills</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={handleSaveSkills}>
+                        <Row>
+                            {Object.keys(editedSkills).map((skillKey,index) => (
+                                <Col style={{ marginBottom: '10px' }} md={6} key={index}>
+                                    <Form.Group controlId={skillKey}>
+                                        <Form.Label>
+                                            {selectedAtlet && skillLabels[selectedAtlet.divisi][index]}
+                                        </Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            min="0"
+                                            max="10"
+                                            name={skillKey}
+                                            value={editedSkills[skillKey]}
+                                            onChange={handleSkillChange}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            ))}
+                        </Row>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" type="submit" onClick={handleSaveSkills} disabled={loading}>
+                        {loading ? <Spinner animation="border" size="sm" /> : 'Update'}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <SansNotify
+                show={showNotify}
+                onHide={handleCloseNotify}
+                status={status}
+                onSuccess={successMessage}
+                onError={errorMessage}
+            />
+        </>
     );
 }
 

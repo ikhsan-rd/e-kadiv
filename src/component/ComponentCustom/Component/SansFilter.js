@@ -5,6 +5,7 @@ import { Form } from 'react-bootstrap';
 const SansFilter = ({
     filterOptions = [],
     selectedFilter = '',
+    text = 'Pilih',
     onFilterChange = () => { },
 }) =>
 {
@@ -13,7 +14,7 @@ const SansFilter = ({
             value={selectedFilter}
             onChange={e => onFilterChange(e.target.value)}
         >
-            <option value="">Pilih</option>
+            <option value="">{text}</option>
             {filterOptions.map((option,index) => (
                 <option key={index} value={option.value}>
                     {option.label}

@@ -12,7 +12,7 @@ function AkunForm()
     const [activeItem,setActiveItem] = useState('');
     const [loading,setLoading] = useState(false);
 
-    const currentJabatan = localStorage.getItem('jabatan');
+    const currentJabatan = sessionStorage.getItem('jabatan');
 
     useEffect(() =>
     {
@@ -49,28 +49,7 @@ function AkunForm()
                 borderRadius: '10px'
             }
         }>
-            {(currentJabatan === 'Puspendiv' || currentJabatan === 'Admin') && (
-                <Nav variant="tabs" activeKey={activeItem}>
-                    <Nav.Item>
-                        <Nav.Link
-                            className={`nav-link ${activeItem === 'table' ? 'active' : ''}`}
-                            onClick={() => handleNavItemClick('table')}
-                        >
-                            Table
-                        </Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item>
-                        <Nav.Link
-                            className={`nav-link ${activeItem === 'input' ? 'active' : ''}`}
-                            onClick={() => handleNavItemClick('input')}
-                        >
-                            Input
-                        </Nav.Link>
-                    </Nav.Item>
-                </Nav>
-            )}
-
-            {(currentJabatan === 'Kadiv') && (
+            {currentJabatan !== 'Pelatih' && (
                 <Nav variant="tabs" activeKey={activeItem}>
                     <Nav.Item>
                         <Nav.Link
@@ -86,11 +65,6 @@ function AkunForm()
             {/* Content Form Akun Table */}
             {activeItem === 'table' && (
                 <AkunTable />
-            )}
-
-            {/* Content Form Akun Input */}
-            {activeItem === 'input' && (
-                <AkunInput />
             )}
 
         </Container>

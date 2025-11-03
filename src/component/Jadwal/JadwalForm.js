@@ -12,7 +12,7 @@ function JadwalForm()
     const [activeItem,setActiveItem] = useState('');
     const [loading,setLoading] = useState(false);
 
-    const currentJabatan = localStorage.getItem('jabatan');
+    const currentJabatan = sessionStorage.getItem('jabatan');
 
     useEffect(() =>
     {
@@ -36,11 +36,6 @@ function JadwalForm()
         navigate(`/database/jadwal/${path}`);
     };
 
-    if (loading)
-    {
-        return <div>Loading...</div>;
-    }
-
     return (
         <Container style={
             {
@@ -49,48 +44,20 @@ function JadwalForm()
                 borderRadius: '10px'
             }
         }>
-            {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
-                <Nav variant="tabs" activeKey={activeItem}>
-                    <Nav.Item>
-                        <Nav.Link
-                            className={`nav-link ${activeItem === 'table' ? 'active' : ''}`}
-                            onClick={() => handleNavItemClick('table')}
-                        >
-                            Table
-                        </Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item>
-                        <Nav.Link
-                            className={`nav-link ${activeItem === 'input' ? 'active' : ''}`}
-                            onClick={() => handleNavItemClick('input')}
-                        >
-                            Tambah
-                        </Nav.Link>
-                    </Nav.Item>
-                </Nav>
-            )}
-
-            {(currentJabatan === 'Puspendiv' || currentJabatan === 'Pelatih') && (
-                <Nav variant="tabs" activeKey={activeItem}>
-                    <Nav.Item>
-                        <Nav.Link
-                            className={`nav-link ${activeItem === 'table' ? 'active' : ''}`}
-                            onClick={() => handleNavItemClick('table')}
-                        >
-                            Table
-                        </Nav.Link>
-                    </Nav.Item>
-                </Nav>
-            )}
+            <Nav variant="tabs" activeKey={activeItem}>
+                <Nav.Item>
+                    <Nav.Link
+                        className={`nav-link ${activeItem === 'table' ? 'active' : ''}`}
+                        onClick={() => handleNavItemClick('table')}
+                    >
+                        Table
+                    </Nav.Link>
+                </Nav.Item>
+            </Nav>
 
             {/* Content Form Jadwal Table */}
             {activeItem === 'table' && (
                 <JadwalTable />
-            )}
-
-            {/* Content Form Jadwal Input */}
-            {activeItem === 'input' && (
-                <JadwalInput />
             )}
         </Container>
     );

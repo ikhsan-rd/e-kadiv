@@ -1,12 +1,18 @@
 import React from 'react';
 import { Spinner } from 'react-bootstrap';
 
-const SansSpinnerOnTable = () => (
+export const SansSpinnerOnTable = () => (
     <tr>
         <td colSpan="100%" className="text-center">
-                <Spinner animation="border" />
+            <Spinner animation="border" />
         </td>
     </tr>
 );
 
-export default SansSpinnerOnTable;
+export const SansNothingOnTable = () => (
+    <tr>
+        <td colSpan="100%" className="text-center">
+            No data available
+        </td>
+    </tr>
+);

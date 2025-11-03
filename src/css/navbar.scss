@@ -18,6 +18,46 @@
     display: none;
 }
 
+/* Kelas umum untuk link dengan garis bawah */
+.nav-item-underline,
+.link-underline {
+    position: relative;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+/* Garis bawah yang muncul saat aktif atau di-hover */
+.nav-item-underline::after,
+.link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 0;
+    height: 3px;
+    background-color: #007bff;
+    transition: width 0.3s ease;
+}
+
+/* Saat link aktif atau di-hover, garis penuh */
+.nav-item-underline.active::after,
+.nav-item-underline:hover::after,
+.link-underline.active::after,
+.link-underline:hover::after {
+    width: 100%;
+    color: #007bff;
+}
+
+/* Warna teks berubah saat hover */
+.nav-item-underline:hover,
+.link-underline:hover {
+    color: #000;
+}
+
+//--------------------------------//
+
+
+
 /* Style untuk menu mobile */
 @media (max-width: 991px) {
 
@@ -47,7 +87,7 @@
         transform: translateX(0);
     }
 
-    .navbar-toggler-icon{
+    .navbar-toggler-icon {
         background-size: 80%;
     }
 

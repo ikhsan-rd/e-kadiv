@@ -1,66 +1,93 @@
 import '../../css/inputdatabase.scss';
-import React,{ useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container,Form,Row,Col,Table,Button,Modal } from 'react-bootstrap';
+import { Container, Form, Row, Col, Table, Button, Modal, ModalBody, Spinner } from 'react-bootstrap';
+import { Download } from 'react-bootstrap-icons';
+import { AtletPrint } from './AtletPrint';
 import axios from 'axios';
-import
-{
-    SansFilter,
-    SansSearch,
+import {
     SansSpinnerOnTable,
+    SansNothingOnTable,
     SansLoadOrNotImage,
     SansButtonEdit,
     SansButtonDelete,
+    SansDeleteModal,
     SansSortableTable,
-    SansDeleteModal
+    SansFormatDate,
+    SansFilter,
+    SansSearch,
+    SansDivisiDropdown,
+    SansNotify,
+    SansButtonAddData,
+    SansButtonPrintAll,
 } from '../ComponentCustom/SansComps';
 import AtletEdit from './AtletEdit';
+import AtletInput from './AtletInput';
 
-function AtletTable()
-{
-    const currentJabatan = localStorage.getItem('jabatan');
+function AtletTable() {
+    const currentJabatan = sessionStorage.getItem('jabatan');
+    const currentDivisi = sessionStorage.getItem('divisi');
+    const currentToken = sessionStorage.getItem('token');
 
-    const [loading,setLoading] = useState(false);
+
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    
-    //Fetch
-    const [tableData,setTableData] = useState([]);
-    const [divisiList,setDivisiList] = useState([]);
-    useEffect(() =>
-    {
-        fetchTableData();
-    },[]);
 
-    const fetchTableData = async () =>
-    {
-        const token = localStorage.getItem('token');
+    //Fetch
+    const [tableData, setTableData] = useState([]);
+    const { sortedData, requestSort, getSortIcon } = SansSortableTable({
+        data: tableData,
+        defaultSort: 'nama',
+        type: 'ascending'
+    });
+
+    useEffect(() => {
+        fetchTableData();
+    }, []);
+
+    const fetchTableData = async () => {
         setLoading(true);
 
-        try
-        {
-            const response = await axios.get('http://localhost:8000/api/atlet',{
+        try {
+            const response = await axios.get('http://localhost:8000/api/atlet', {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${currentToken}`,
                 },
             });
-            console.log('Data fetched: ',response.data);
-            setTableData(response.data.data);
+            console.log('Data fetched: ', response.data);
 
-            const uniqueDivisi = [...new Set(response.data.data.map(item => item.divisi))];
-            setDivisiList(uniqueDivisi);
+            const formattedData = response.data.data.map(item => ({
+                ...item,
+                formatted_tgl_lahir: SansFormatDate(item.tgl_lahir),
 
-        } catch (error)
-        {
-            console.error('Error fetching data:',error);
-            console.log(error.response);
-        } finally
-        {
+            }));
+
+            setTableData(formattedData);
+            console.log('format', formattedData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            if (error.response) {
+                console.log(error.response);
+            } else {
+                console.error('Error response not available');
+            }
+        } finally {
             setLoading(false);
         }
     };
 
-    const calculateSemester = (angkatan) =>
-    {
+    const formatted_status_anggota = (status_anggota) => {
+        if (status_anggota === 'Y') {
+            return 'Yes';
+        } else if (status_anggota === 'N') {
+            return 'Non';
+        } else {
+            return '';
+        }
+    };
+
+
+    const calculateSemester = (angkatan) => {
         const currentYear = new Date().getFullYear();
         const yearsElapsed = currentYear - angkatan;
         const currentSemester = yearsElapsed * 2 + 1;
@@ -70,86 +97,80 @@ function AtletTable()
     };
 
     //Filter, Sort, Search
-    const { sortedData,requestSort,getSortIcon } = SansSortableTable(tableData);
+    const [filter, setFilter] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filtered, setFiltered] = useState([]);
 
-    const [filter,setFilter] = useState('');
-    const [searchTerm,setSearchTerm] = useState('');
-    const [filtered,setFiltered] = useState([]);
+    useEffect(() => {
+        let filteredData = sortedData;
 
-    useEffect(() =>
-    {
-        const filtered = sortedData
-            .filter(item =>
-                (filter ? item.divisi === filter : true) &&
-                (searchTerm ?
-                    item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    item.tempat_lahir.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    item.tgl_lahir.toString().includes(searchTerm) ||
-                    item.jk.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    item.jurusan.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    calculateSemester(item.angkatan).toString().includes(searchTerm) ||
-                    item.status_anggota.toLowerCase().includes(searchTerm.toLowerCase())
-                    : true)
+        if (currentDivisi === '-') {
+            if (filter !== '') {
+                filteredData = filteredData.filter(item => item.divisi === filter);
+            }
+        } else {
+            filteredData = filteredData.filter(item => item.divisi === currentDivisi);
+        }
+
+        if (searchTerm) {
+            const lowerSearch = searchTerm.toLowerCase();
+            filteredData = filteredData.filter(item =>
+                item.nama.toLowerCase().includes(lowerSearch) ||
+                item.tempat_lahir.toLowerCase().includes(lowerSearch) ||
+                item.tgl_lahir.toString().includes(searchTerm) ||
+                item.jk.toLowerCase().includes(lowerSearch) ||
+                item.jurusan.toLowerCase().includes(lowerSearch) ||
+                calculateSemester(item.angkatan).toString().includes(searchTerm) ||
+                item.status_anggota.toLowerCase().includes(lowerSearch)
             );
+        }
 
-        setFiltered(filtered);
-    },[filter,searchTerm,sortedData]);
+        setFiltered(filteredData);
+    }, [filter, searchTerm, sortedData, currentDivisi]);
 
-    const handleClearAll = () =>
-    {
+    const handleClearAll = () => {
         setFilter('');
         setSearchTerm('');
         requestSort('');
     };
 
+    //Add
+    const [showAdd, setShowAdd] = useState(false);
+
+    const handleShowAdd = () => {
+        setShowAdd(true);
+    }
+
+    const handleCloseAdd = () => {
+        setShowAdd(false);
+    }
+
     // Edit
-    const [isEditing,setIsEditing] = useState(false);
-    const [editingRowId,setEditingRowId] = useState(null);
-    const [fotoFile,setFotoFile] = useState(null);
-    const [formData,setFormData] = useState({
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingRowId, setEditingRowId] = useState(null);
+    const [isEditingPhoto, setIsEditingPhoto] = useState(false);
+    const [isEditingFile, setIsEditingFile] = useState(false);
+    const [doneFile, setDoneFile] = useState(false);
+
+    const [formData, setFormData] = useState({
         nama: "",
+        npm: "",
         jk: "",
         tempat_lahir: "",
         tgl_lahir: "",
+        angkatan: "",
+        jurusan: "",
         wa: "",
         divisi: "",
         kategori: "",
+        status_mhs: "",
         status_anggota: "",
         foto: null,
+        ktm_sia: null,
     });
 
-    const handleEditClick = async (item) =>
-    {
-        if (item.foto)
-        {
-            try
-            {
-                const response = await axios.get(item.foto,{
-                    responseType: 'blob'
-                });
-
-                // Ambil tipe MIME dari response
-                const mimeType = response.data.type;
-
-                // Dapatkan ekstensi file berdasarkan tipe MIME
-                const extension = mimeType.split('/')[1]; // Ekstensi diambil dari bagian setelah slash, contoh: 'jpeg', 'png'
-
-                // Buat nama file dengan ekstensi yang sesuai
-                const fileName = `image.${extension}`;
-
-                // Buat objek File
-                const file = new File([response.data],fileName,{ type: mimeType });
-                setFotoFile(file);
-            } catch (error)
-            {
-                console.error('Error fetching the image file:',error);
-            }
-        } else
-        {
-            setFotoFile(null);
-        }
-        console.log(typeof (fotoFile));
-
+    const [selectedFile, setSelectedFile] = useState(null);
+    const handleEditClick = (item) => {
         setEditingRowId(item.id);
         setFormData({
             nama: item.nama,
@@ -167,13 +188,15 @@ function AtletTable()
             foto: item.foto,
             ktm_sia: item.ktm_sia,
         });
+        setSelectedFile(item.ktm_sia);
         setIsEditing(true);
-        console.log(typeof (fotoFile));
+        setIsEditingPhoto(false);
+        setIsEditingFile(false);
+        setDoneFile(false);
+
     };
 
-
-    const handleCancelClick = () =>
-    {
+    const handleCancelClick = () => {
         setIsEditing(false);
         setEditingRowId(null);
         setFormData({
@@ -192,162 +215,285 @@ function AtletTable()
             ktm_sia: null,
             foto: null,
         });
+        setSelectedFile(null);
+        setIsEditingPhoto(false);
+        setIsEditingFile(false);
+        setDoneFile(false);
     };
 
     //Delete
-    const [deleteId,setDeleteId] = useState(null);
-    const [showDeleteModal,setShowDeleteModal] = useState(false);
-    const handleDelete = async () =>
-    {
-        if (deleteId)
-        {
-            handleCloseModalDelete();
-            try
-            {
-                await axios.delete(`http://localhost:8000/api/atlet/${deleteId}`,{
+    const [deleteId, setDeleteId] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteFailed, setDeleteFailed] = useState(false);
+
+    const handleDelete = async () => {
+        if (deleteId) {
+            setLoading(true);
+            setDeleteFailed(false);
+            try {
+                await axios.delete(`http://localhost:8000/api/atlet/${deleteId}`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Authorization': `Bearer ${currentToken}`,
                     },
                 });
 
-                setTimeout(() =>
-                {
-                    navigate("/database/team/atlet/table");
-                },100);
-            } catch (err)
-            {
-                console.error("Delete failed:",err);
+                handleCloseModalDelete();
+                setSuccessMessage("Data berhasil dihapus");
+                setStatus('success');
+                setShowNotify(true);
+                fetchTableData();
+            } catch (err) {
+                setErrorMessage("Terjadi Kesalahan");
+                setStatus('error');
+                setShowNotify(true);
+                setDeleteFailed(true);
+                console.error("Delete failed:", err);
+                if (err.response) {
+                    console.error("Response data:", err.response.data);
+                }
+            } finally {
+                setLoading(false);
             }
         }
     };
 
-    const handleDeleteConfirmation = (id) =>
-    {
+    const handleDeleteConfirmation = (id) => {
         setDeleteId(id);
         setShowDeleteModal(true);
     };
 
-    const handleCloseModalDelete = () =>
-    {
+    const handleCloseModalDelete = () => {
         setDeleteId(null);
         setShowDeleteModal(false);
     };
 
+    //notify
+    const [status, setStatus] = useState(null);
+    const [showNotify, setShowNotify] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const handleCloseNotify = () => {
+        setShowNotify(false);
+        setSuccessMessage("");
+        setErrorMessage("");
+        setTimeout(() => {
+            setStatus(null);
+            setIsEditingPhoto(false);
+            setIsEditingFile(false);
+        }, 100);
+    };
+
+    // print
+    const [showPreview, setShowPreview] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState(null);
+
+    const handleShowPreview = () => {
+        if (currentDivisi === '-' && (!filter || filter === '' || filter === '-')) {
+            setErrorMessage("Pilih divisi terlebih dahulu");
+            setStatus('error');
+            setShowNotify(true);
+            return;
+        }
+
+        const processedData = filtered.map(item => ({
+            ...item,
+            semester: calculateSemester(item.angkatan)
+        }));
+
+        const url = AtletPrint(processedData, filter, calculateSemester);
+        setPdfUrl(url);
+        setShowPreview(true);
+    };
+
+    const handleClosePerview = () => {
+        setShowPreview(false);
+        setPdfUrl(null);
+    }
+
     return (
-        <Container>
-            <Form style={{ marginTop: '15px' }}>
-                <h2 style={{ marginBottom: '15px' }}>Daftar Atlet</h2>
-                <Row style={{ marginBottom: '10px' }}>
-                    <Form.Group as={Col} md={2}>
-                        <SansFilter
-                            filterOptions={divisiList.map(divisi => ({ value: divisi,label: divisi }))}
-                            selectedFilter={filter}
-                            onFilterChange={setFilter}
-                        />
-                    </Form.Group>
-                    <Form.Group as={Col} md={3} >
-                        <SansSearch
-                            searchTerm={searchTerm}
-                            onSearchChange={setSearchTerm}
-                        />
-                    </Form.Group>
-                    <Form.Group as={Col} md={2} controlId="filter">
-                        <Button onClick={handleClearAll}>
-                            Clear All
-                        </Button>
-                    </Form.Group>
-                </Row>
-                <Table striped bordered hover>
-                    <thead>
-                        <tr className='text-center'>
-                            <th>No</th>
-                            <th>Foto</th>
-                            <th onClick={() => requestSort('nama')}>
-                                Nama {getSortIcon('nama')}
-                            </th>
-                            <th onClick={() => requestSort('tempat_lahir')}>
-                                TTL {getSortIcon('tempat_lahir')}
-                            </th>
-                            <th onClick={() => requestSort('jk')}>
-                                L/P {getSortIcon('jk')}
-                            </th>
-                            <th onClick={() => requestSort('jurusan')}>
-                                Jurusan {getSortIcon('jurusan')}
-                            </th>
-                            <th onClick={() => requestSort('angkatan')}>
-                                Semester {getSortIcon('angkatan')}
-                            </th>
-                            <th onClick={() => requestSort('status_anggota')}>
-                                Anggota {getSortIcon('status_anggota')}
-                            </th>
+        <>
+            <Container>
+                <Form style={{ marginTop: '15px' }}>
+                    <h2 style={{ marginBottom: '15px' }}>Daftar Atlet</h2>
+                    <Row style={{ marginBottom: '10px' }}>
+                        <Form.Group as={Col} md={2}>
+                            <SansDivisiDropdown
+                                value={filter}
+                                onChange={(e) => setFilter(e.target.value)}
+                                required
+                                disabled={loading || currentDivisi !== '-'}
+                            />
+                        </Form.Group>
+                        <Form.Group as={Col} md={3} >
+                            <SansSearch
+                                searchTerm={searchTerm}
+                                onSearchChange={setSearchTerm}
+                            />
+                        </Form.Group>
+                        <Form.Group as={Col} md={2} controlId="filter">
+                            <Button onClick={handleClearAll}>
+                                Clear All
+                            </Button>
+                        </Form.Group>
+                        <Form.Group as={Col} className="d-flex justify-content-end">
+                            <SansButtonPrintAll
+                                onClick={handleShowPreview}
+                            />
                             {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
-                                <th>Action</th>
+                                <SansButtonAddData
+                                    onClick={handleShowAdd}
+                                />
                             )}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <SansSpinnerOnTable></SansSpinnerOnTable>
-                        ) : filtered.length > 0 ? (
-                            filtered.map((item,index) => (
-                                <tr key={item.id}>
-                                    <td className='text-center'>{index + 1}</td>
-                                    <td className='text-center'>
-                                        <SansLoadOrNotImage
-                                            src={item.foto}
-                                            width="30px"
-                                            height="30px"
-                                            shape="circle"
-                                            onError={() => console.log('Gambar gagal dimuat')}
-                                        />
-                                    </td>
-                                    <td>{item.nama}</td>
-                                    <td>{`${item.tempat_lahir} - ${item.tgl_lahir}`}</td>
-                                    <td className='text-center'>{item.jk}</td>
-                                    <td>{item.jurusan}</td>
-                                    <td className='text-center'>{calculateSemester(item.angkatan)}</td>
-                                    <td className='text-center'>{item.status_anggota}</td>
-                                    {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
+                        </Form.Group>
+                    </Row>
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr className='text-center'>
+                                <th>No</th>
+                                <th>Foto</th>
+                                <th onClick={() => requestSort('nama')}>
+                                    Nama {getSortIcon('nama')}
+                                </th>
+                                <th onClick={() => requestSort('tempat_lahir')}>
+                                    TTL {getSortIcon('tempat_lahir')}
+                                </th>
+                                <th onClick={() => requestSort('jk')}>
+                                    L/P {getSortIcon('jk')}
+                                </th>
+                                <th onClick={() => requestSort('jurusan')}>
+                                    Jurusan {getSortIcon('jurusan')}
+                                </th>
+                                <th onClick={() => requestSort('angkatan')}>
+                                    Semester {getSortIcon('angkatan')}
+                                </th>
+                                <th onClick={() => requestSort('status_anggota')}>
+                                    Anggota {getSortIcon('status_anggota')}
+                                </th>
+                                {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
+                                    <th>Action</th>
+                                )}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <SansSpinnerOnTable />
+                            ) : filtered.length > 0 ? (
+                                filtered.map((item, index) => (
+                                    <tr key={item.id}>
+                                        <td className='text-center'>{index + 1}</td>
                                         <td className='text-center'>
-                                            <SansButtonEdit
-                                            //onClick={() => handleEditClick(item)}
-                                            />
-                                            <SansButtonDelete
-                                                onClick={() => handleDeleteConfirmation(item.id)}
+                                            <SansLoadOrNotImage
+                                                src={item.foto}
+                                                width="30px"
+                                                height="30px"
+                                                shape="circle"
+                                                onError={() => console.log('Gambar gagal dimuat')}
                                             />
                                         </td>
-                                    )}
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="9" className="text-center">
-                                    No data available
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </Table>
-            </Form>
+                                        <td>{item.nama}</td>
+                                        <td>{`${item.tempat_lahir} - ${item.formatted_tgl_lahir}`}</td>
+                                        <td className='text-center'>{item.jk}</td>
+                                        <td>{item.jurusan}</td>
+                                        <td className='text-center'>{calculateSemester(item.angkatan)}</td>
+                                        <td className='text-center'>{formatted_status_anggota(item.status_anggota)}</td>
+                                        {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
+                                            <td className='text-center'>
+                                                <SansButtonEdit
+                                                    onClick={() => handleEditClick(item)}
+                                                />
+                                                <SansButtonDelete
+                                                    onClick={() => handleDeleteConfirmation(item.id)}
+                                                />
+                                            </td>
+                                        )}
+                                    </tr>
+                                ))
+                            ) : (
+                                <SansNothingOnTable />
+                            )}
+                        </tbody>
+                    </Table>
+                </Form>
+            </Container>
 
-            <Modal show={isEditing} onHide={handleCancelClick}>
-                <AtletEdit
-                    formData={formData}
-                    setFormData={setFormData}
-                    loading={loading}
-                    setLoading={setLoading}
-                    editingRowId={editingRowId}
-                />
+            <Modal show={showAdd} onHide={handleCloseAdd} style={{ borderRadius: '5px' }} size='xl' centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Tambah Atlet</Modal.Title>
+                </Modal.Header>
+                <ModalBody>
+                    <AtletInput />
+                </ModalBody>
+            </Modal>
+
+            <Modal show={isEditing} style={{ borderRadius: '5px' }} onHide={handleCancelClick} size='lg' centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Data Atlet</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <AtletEdit
+                        formData={formData}
+                        setFormData={setFormData}
+                        loading={loading}
+                        setLoading={setLoading}
+                        editingRowId={editingRowId}
+
+                        isEditingPhoto={isEditingPhoto}
+                        setIsEditingPhoto={setIsEditingPhoto}
+                        isEditingFile={isEditingFile}
+                        setIsEditingFile={setIsEditingFile}
+                        doneFile={doneFile}
+                        setDoneFile={setDoneFile}
+                        selectedFile={selectedFile}
+                        setSelectedFile={setSelectedFile}
+
+                        handleCancelClick={handleCancelClick}
+
+                        setStatus={setStatus}
+                        setShowNotify={setShowNotify}
+                        setErrorMessage={setErrorMessage}
+                        setSuccessMessage={setSuccessMessage}
+                        fetchTableData={fetchTableData}
+                    />
+                </Modal.Body>
+            </Modal>
+
+            <Modal show={showPreview} onHide={handleClosePerview} style={{ borderRadius: '5px' }} size='lg'>
+                <Modal.Header closeButton>Pratinjau PDF</Modal.Header>
+                <Modal.Body>
+                    {pdfUrl && (
+                        <iframe
+                            src={pdfUrl}
+                            style={{
+                                minHeight: '70vh',
+                                maxHeight: '70vh',
+                                maxWidth: '100%',
+                                width: '100%',
+                                borderBottom: '1px solid grey',
+                                objectFit: 'contain'
+                            }}
+                        ></iframe>
+                    )}
+                </Modal.Body>
             </Modal>
 
             <SansDeleteModal
                 show={showDeleteModal}
                 onHide={handleCloseModalDelete}
                 onDelete={handleDelete}
-                loading={loading}
                 bodyText="Hapus data atlet ini?"
+                error={deleteFailed}
+                loading={loading}
             />
-        </Container >
+
+            <SansNotify
+                show={showNotify}
+                onHide={handleCloseNotify}
+                status={status}
+                onSuccess={successMessage}
+                onError={errorMessage}
+            />
+        </>
     );
 }
 

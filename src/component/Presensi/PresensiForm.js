@@ -12,7 +12,7 @@ function PresensiForm()
     const [activeItem,setActiveItem] = useState('');
     const [loading,setLoading] = useState(false);
 
-    const currentJabatan = localStorage.getItem('jabatan');
+    const currentJabatan = sessionStorage.getItem('jabatan');
 
     useEffect(() =>
     {
@@ -20,7 +20,7 @@ function PresensiForm()
         const lastPart = pathParts[pathParts.length - 1];
         setActiveItem(lastPart);
     },[location.pathname]);
-    
+
     const nowPath = location.pathname;
     useEffect(() =>
     {
@@ -49,7 +49,7 @@ function PresensiForm()
                 borderRadius: '10px',
             }}
         >
-            {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
+            {currentJabatan && (
                 <Nav variant="tabs" activeKey={activeItem}>
                     <Nav.Item>
                         <Nav.Link
@@ -59,27 +59,16 @@ function PresensiForm()
                             Table
                         </Nav.Link>
                     </Nav.Item>
-                    <Nav.Item>
-                        <Nav.Link
-                            className={`nav-link ${activeItem === 'input' ? 'active' : ''}`}
-                            onClick={() => handleNavItemClick('input')}
-                        >
-                            Tambah
-                        </Nav.Link>
-                    </Nav.Item>
-                </Nav>
-            )}
-
-            {(currentJabatan === 'Puspendiv' || currentJabatan === 'Pelatih') && (
-                <Nav variant="tabs" activeKey={activeItem}>
-                    <Nav.Item>
-                        <Nav.Link
-                            className={`nav-link ${activeItem === 'table' ? 'active' : ''}`}
-                            onClick={() => handleNavItemClick('table')}
-                        >
-                            Table
-                        </Nav.Link>
-                    </Nav.Item>
+                    {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
+                        <Nav.Item>
+                            <Nav.Link
+                                className={`nav-link ${activeItem === 'input' ? 'active' : ''}`}
+                                onClick={() => handleNavItemClick('input')}
+                            >
+                                Tambah
+                            </Nav.Link>
+                        </Nav.Item>
+                    )}
                 </Nav>
             )}
 

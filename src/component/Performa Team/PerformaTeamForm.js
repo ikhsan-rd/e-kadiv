@@ -12,7 +12,7 @@ function PerformaTeamForm()
     const [activeItem,setActiveItem] = useState('');
     const [loading,setLoading] = useState(false);
 
-    const currentJabatan = localStorage.getItem('jabatan');
+    const currentJabatan = sessionStorage.getItem('jabatan');
 
     useEffect(() =>
     {

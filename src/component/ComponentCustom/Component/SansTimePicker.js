@@ -1,72 +1,59 @@
 import React,{ useState,useRef,useEffect } from 'react';
-import { FormControl } from 'react-bootstrap';
+import { FormControl,Button } from 'react-bootstrap';
+import { Trash } from 'react-bootstrap-icons';
+import '../../../css/button.scss';
 
-const SansTimePicker = ({ format = '24h',value,onChange }) =>
+const SansTimePicker = ({
+    format = '24h',
+    value,
+    onChange,
+    onClear,
+    readOnly,
+    disabled,
+    required,
+    name,
+    style = {} // Added style prop
+}) =>
 {
     const [showOptions,setShowOptions] = useState(false);
     const [selectedHour,setSelectedHour] = useState(null);
     const [selectedMinute,setSelectedMinute] = useState(null);
-    const [selectedAMPM,setSelectedAMPM] = useState('?');
     const timePickerRef = useRef();
 
     useEffect(() =>
     {
         if (value)
         {
-            const [time,ampm] = value.split(' ');
+            const [time] = value.split(' ');
             const [hour,minute] = time.split(':');
             setSelectedHour(parseInt(hour,10));
             setSelectedMinute(parseInt(minute,10));
-            if (format === '12h')
-            {
-                setSelectedAMPM(ampm);
-            }
         } else
         {
             setSelectedHour(null);
             setSelectedMinute(null);
-            setSelectedAMPM('?');
         }
-    },[value,format]);
+    },[value]);
 
     const handleToggleOptions = () =>
     {
-        setShowOptions(!showOptions);
+        if (!readOnly && !disabled)
+        {
+            setShowOptions(!showOptions);
+        }
     };
 
     const handleHourSelect = (hour) =>
     {
         setSelectedHour(hour);
-        if (format === '24h')
-        {
-            onChange(`${hour}:${selectedMinute !== null ? selectedMinute : '00'}`);
-        } else if (format === '12h')
-        {
-            onChange(`${hour}:${selectedMinute !== null ? selectedMinute : '00'} ${selectedAMPM}`);
-        }
+        onChange(`${hour < 10 ? `0${hour}` : hour}:${selectedMinute !== null ? (selectedMinute < 10 ? `0${selectedMinute}` : selectedMinute) : '00'}`);
     };
 
     const handleMinuteSelect = (minute) =>
     {
         setSelectedMinute(minute);
-        if (format === '24h')
-        {
-            onChange(`${selectedHour !== null ? selectedHour : '00'}:${minute}`);
-            setShowOptions(false);
-        } else if (format === '12h')
-        {
-            onChange(`${selectedHour !== null ? selectedHour : '00'}:${minute} ${selectedAMPM}`);
-        }
-    };
-
-    const handleAMPMSelect = (ampm) =>
-    {
-        if (format === '12h')
-        {
-            setSelectedAMPM(ampm);
-            onChange(`${selectedHour !== null ? selectedHour : '00'}:${selectedMinute !== null ? selectedMinute : '00'} ${ampm}`);
-            setShowOptions(false);
-        }
+        onChange(`${selectedHour !== null ? (selectedHour < 10 ? `0${selectedHour}` : selectedHour) : '00'}:${minute < 10 ? `0${minute}` : minute}`);
+        setShowOptions(false);
     };
 
     const handleClickOutside = (event) =>
@@ -86,20 +73,30 @@ const SansTimePicker = ({ format = '24h',value,onChange }) =>
         };
     },[]);
 
-    const hours = format === '12h' ? Array.from(Array(12).keys()).map(hour => hour + 1) : Array.from(Array(24).keys());
+    const hours = Array.from(Array(24).keys());
     const minutes = Array.from(Array(60).keys());
 
+    const getCursorStyle = () =>
+    {
+        return readOnly || disabled ? 'default' : 'pointer';
+    };
+
     return (
-        <div style={{ position: 'relative',display: 'inline-block' }}>
+        <div style={{ position: 'relative',display: 'flex',...style }} ref={timePickerRef}>
             <FormControl
                 onClick={handleToggleOptions}
-                readOnly
-                ref={timePickerRef}
-                value={`${selectedHour !== null ? (selectedHour < 10 ? `0${selectedHour}` : selectedHour) : '--'}:${selectedMinute !== null ? (selectedMinute < 10 ? `0${selectedMinute}` : selectedMinute) : '--'}${format === '12h' ? ` ${selectedAMPM}` : ''}`}
+                readOnly={readOnly}
+                disabled={disabled}
+                required={required}
+                name={name}
+                style={{
+                    width: '100%',
+                    cursor: getCursorStyle(),
+                }}
+                value={`${selectedHour !== null ? (selectedHour < 10 ? `0${selectedHour}` : selectedHour) : '--'}:${selectedMinute !== null ? (selectedMinute < 10 ? `0${selectedMinute}` : selectedMinute) : '--'}`}
             />
-            {showOptions && (
+            {showOptions && !readOnly && !disabled && (
                 <div
-                    ref={timePickerRef}
                     style={{
                         position: 'absolute',
                         top: 'calc(100% + 5px)',
@@ -109,16 +106,16 @@ const SansTimePicker = ({ format = '24h',value,onChange }) =>
                         border: '1px solid #ccc',
                         borderRadius: '4px',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                        padding: '5px 10px 10px 0'
+                        padding: '5px 10px 10px 0',
                     }}>
                     <div className='time-scroll-down'
                         style={{
                             display: 'flex',
                             justifyContent: 'space-between',
-                            maxHeight: '150px'
+                            maxHeight: '150px',
                         }}>
-                        <div>
-                            <div className='hour-label' style={{marginLeft:'5px'}}>
+                        <div style={{ flex: '50%' }}>
+                            <div className='hour-label' style={{ marginLeft: '5px' }}>
                                 <h7>Hour</h7>
                             </div>
                             <div className='hour-scroll-down'
@@ -126,7 +123,7 @@ const SansTimePicker = ({ format = '24h',value,onChange }) =>
                                     overflowY: 'auto',
                                     overflowX: 'hidden',
                                     maxHeight: '84%',
-                                    padding: '0 8px 0 8px'
+                                    padding: '0 8px 0 8px',
                                 }}>
                                 {hours.map((hour) => (
                                     <div key={hour} onClick={() => handleHourSelect(hour)}
@@ -134,14 +131,15 @@ const SansTimePicker = ({ format = '24h',value,onChange }) =>
                                             background: selectedHour === hour ? '#007bff' : 'transparent',
                                             color: selectedHour === hour ? 'white' : 'black',
                                             padding: '5px',
-                                            cursor: 'pointer'
+                                            cursor: getCursorStyle(),
+                                            ...style.hourItem // Apply custom styles from props
                                         }}>
                                         {hour < 10 ? `0${hour}` : hour}
                                     </div>
                                 ))}
                             </div>
                         </div>
-                        <div>
+                        <div style={{ flex: '50%' }}>
                             <div className='minute-label'>
                                 <h7>Minute</h7>
                             </div>
@@ -150,7 +148,8 @@ const SansTimePicker = ({ format = '24h',value,onChange }) =>
                                     overflowY: 'auto',
                                     overflowX: 'hidden',
                                     maxHeight: '84%',
-                                    padding: '0 8px 0 8px'
+                                    padding: '0 8px 0 8px',
+                                    ...style.minuteScroll // Apply custom styles from props
                                 }}>
                                 {minutes.map((minute) => (
                                     <div key={minute} onClick={() => handleMinuteSelect(minute)}
@@ -158,46 +157,26 @@ const SansTimePicker = ({ format = '24h',value,onChange }) =>
                                             background: selectedMinute === minute ? '#007bff' : 'transparent',
                                             color: selectedMinute === minute ? 'white' : 'black',
                                             padding: '5px',
-                                            cursor: 'pointer'
+                                            cursor: getCursorStyle(),
+                                            ...style.minuteItem // Apply custom styles from props
                                         }}>
                                         {minute < 10 ? `0${minute}` : minute}
                                     </div>
                                 ))}
                             </div>
                         </div>
-                        {format === '12h' && (
-                            <div>
-                                <div className='am-pm-label'>
-                                    <h7>Period</h7>
-                                </div>
-                                <div className='am-pm-scroll-down'
-                                    style={{
-                                        paddingLeft: '8px',
-                                        paddingRight: '8px'
-                                    }}>
-                                    <div onClick={() => handleAMPMSelect('Am')}
-                                        style={{
-                                            background: selectedAMPM === 'Am' ? '#007bff' : 'transparent',
-                                            color: selectedAMPM === 'Am' ? 'white' : 'black',
-                                            padding: '5px',
-                                            cursor: 'pointer'
-                                        }}>
-                                        Am
-                                    </div>
-                                    <div onClick={() => handleAMPMSelect('Pm')}
-                                        style={{
-                                            background: selectedAMPM === 'Pm' ? '#007bff' : 'transparent',
-                                            color: selectedAMPM === 'Pm' ? 'white' : 'black',
-                                            padding: '5px',
-                                            cursor: 'pointer'
-                                        }}>
-                                        Pm
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
+            )}
+            {(selectedHour !== null || selectedMinute !== null) && !readOnly && !disabled && (
+                <Button
+                    variant="danger"
+                    onClick={onClear}
+                    className='button-delete'
+                    style={{ cursor: getCursorStyle(),...style.clearButton }} // Apply custom styles from props
+                >
+                    <Trash className='trash-custom' />
+                </Button>
             )}
         </div>
     );

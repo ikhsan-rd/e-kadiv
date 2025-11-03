@@ -1,140 +1,275 @@
-import React,{ useState } from 'react';
-import { Container,Form,Button,Row,Col } from 'react-bootstrap';
-import { PlusLg,Trash } from 'react-bootstrap-icons';
+import React,{ useState,useEffect } from 'react';
+import { Container,Form,Button,Row,Col,Spinner } from 'react-bootstrap';
 import '../../css/button.scss'
+import { SansDivisiDropdown,SansNotify } from '../ComponentCustom/SansComps';
+import axios from 'axios';
 
 function SaranaInput()
 {
-    const [saranaCount,setSaranaCount] = useState(1);
-    const [saranaData,setSaranaData] = useState([{ nomor: 1,namaSarana: null,jumlah: 0,satuan: null,layakPakai: 0,tidakLayakPakai: 0,keterangan:null }]);
+    const currentToken = sessionStorage.getItem('token');
+    const currentDivisi = sessionStorage.getItem('divisi');
 
-    const handleAddSarana = () =>
-    {
-        setSaranaData([...saranaData,
-        { nomor: saranaData.length + 1,namaSarana: null,jumlah: 0,satuan: null,layakPakai: 0,tidakLayakPakai: 0,keterangan:null }
-        ]);
-        setSaranaCount(saranaCount + 1);
-    };
+    //fetch satuan list
+    const [loading,setLoading] = useState(false);
+    const [satuanList,setSatuanList] = useState([]);
 
-    const handleSaranaDataChange = (index,field,value) =>
+    useEffect(() =>
     {
-        const newSaranaData = [...saranaData];
-        newSaranaData[index][field] = value;
-        setSaranaData(newSaranaData);
-    };
-
-    const handleSaranaRemove = () =>
-    {
-        if (saranaCount > 1)
+        const fetchSatuanList = async () =>
         {
-            const newSaranaData = [...saranaData];
-            newSaranaData.pop();
-            setSaranaData(newSaranaData);
-            setSaranaCount(saranaCount - 1);
+            setLoading(true);
+            try
+            {
+                const response = await axios.get("http://localhost:8000/api/sarana",{
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                const satuanListData = [...new Set(response.data.data.map(item => item.satuan))];
+                setSatuanList(satuanListData);
+            } catch (error)
+            {
+                console.error("Error fetching satuan list:",error);
+            } finally
+            {
+                setLoading(false);
+            }
+
+        };
+
+        fetchSatuanList();
+    },[currentToken]);
+
+    const [formData,setFormData] = useState({
+        divisi:currentDivisi|| "",
+        nama: "",
+        jumlah: 0,
+        satuan: "",
+        layak_pakai: 0,
+        tdk_layak_pakai: 0,
+        keterangan: "",
+    });
+
+    // Handle perubahan data pada form
+    const handleChange = (e) =>
+    {
+        const { name,value } = e.target;
+        let newValue = value;
+
+        setFormData((prevData) =>
+        {
+            const updatedData = { ...prevData,[name]: newValue };
+
+            if (name === 'jumlah')
+            {
+                const layak = parseInt(updatedData.layak_pakai) || 0;
+                const tdkLayak = parseInt(updatedData.tdk_layak_pakai) || 0;
+
+                if (layak + tdkLayak > value)
+                {
+                    updatedData.layak_pakai = '';
+                    updatedData.tdk_layak_pakai = '';
+                }
+            } else if (name === 'layak_pakai')
+            {
+                const jumlah = parseInt(updatedData.jumlah) || 0;
+                updatedData.tdk_layak_pakai = jumlah - parseInt(newValue);
+            } else if (name === 'tdk_layak_pakai')
+            {
+                const jumlah = parseInt(updatedData.jumlah) || 0;
+                updatedData.layak_pakai = jumlah - parseInt(newValue);
+            }
+
+            return updatedData;
+        });
+    };
+
+    // Submit
+    const handleSubmit = async (e) =>
+    {
+        e.preventDefault();
+        setLoading(true);
+
+        const data = new FormData();
+        Object.keys(formData).forEach(key =>
+        {
+            data.append(key,formData[key]);
+        });
+
+        try
+        {
+            // Add akun request
+            await axios.post("http://localhost:8000/api/sarana",data,{
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${currentToken}`,
+                },
+                withCredentials: true,
+            });
+
+            setFormData({
+                divisi:currentDivisi|| "",
+                nama: "",
+                jumlah: 0,
+                satuan: "",
+                layak_pakai: 0,
+                tdk_layak_pakai: 0,
+                keterangan: "",
+            });
+
+            setSuccessMessage("Data berhasil ditambahkan");
+            setStatus('success');
+            setShowNotify(true);
+        } catch (err)
+        {
+            if (err.response && err.response.data.message)
+            {
+                setErrorMessage(err.response.data.message);
+            } else
+            {
+                setErrorMessage("Terjadi Kesalahan");
+                console.error("Response data:",err.response.data);
+            }
+            setStatus('error');
+            setShowNotify(true);
+        } finally
+        {
+            setLoading(false);
         }
     };
 
+    //notify
+    const [status,setStatus] = useState(null);
+    const [showNotify,setShowNotify] = useState(false);
+    const [successMessage,setSuccessMessage] = useState("");
+    const [errorMessage,setErrorMessage] = useState("");
+
+    const handleCloseNotify = () =>
+    {
+        setShowNotify(false);
+        setSuccessMessage("");
+        setErrorMessage("");
+        setTimeout(() =>
+        {
+            setStatus(null);
+        },100);
+    };
+
     return (
-        <Container>
-            {/* Content Form Sarana */}
-            <Form style={{ marginTop: '15px' }}>
-                <h2>Tambah Sarana & Pra-sarana</h2>
-                <Row style={{ marginBottom: '15px' }}>
-                    <Form.Group as={Col} md={4} controlId="divisi">
-                        <Form.Label>Divisi</Form.Label>
-                        <Form.Select as="select">
-                            <option value="">Pilih Divisi</option>
-                            <option value="divisi1">Sepak Bola</option>
-                            <option value="divisi2">Bulu Tangkis</option>
-                            <option value="divisi2">Bola Voli</option>
-                            <option value="divisi2">Futsal</option>
-                            <option value="divisi3">Bela Diri (Silat)</option>
-                        </Form.Select>
-                    </Form.Group>
-                </Row>
-                <Row>
-                    <Form.Group as={Col} md={1}>
-                        <Form.Label>No</Form.Label>
-                    </Form.Group>
-                    <Form.Group as={Col} md={2}>
-                        <Form.Label>Nama</Form.Label>
-                    </Form.Group>
-                    <Form.Group as={Col} md={1}>
-                        <Form.Label>Jumlah</Form.Label>
-                    </Form.Group>
-                    <Form.Group as={Col} md={2}>
-                        <Form.Label>Satuan</Form.Label>
-                    </Form.Group>
-                    <Form.Group as={Col} md={2}>
-                        <Form.Label>Layak Pakai</Form.Label>
-                    </Form.Group>
-                    <Form.Group as={Col} md={2}>
-                        <Form.Label>Tidak Layak Pakai</Form.Label>
-                    </Form.Group>
-                    <Form.Group as={Col} md={2}>
-                        <Form.Label>Keterangan</Form.Label>
-                    </Form.Group>
-                </Row>
-                {saranaData.map((data,index) => (
-                    <Row style={{ marginBottom: '5px' }}>
-                        <Form.Group as={Col} md={1} controlId={`nomor-${index}`}>
-                            <Form.Control type="text" value={data.nomor} disabled={true} style={{ backgroundColor: '#fff' }} />
-                        </Form.Group>
-                        <Form.Group as={Col} md={2} controlId="nama">
-                            <Form.Control type="text" placeholder="Nama Sarana"
-                                value={data.namaSarana} />
-                        </Form.Group>
-                        <Form.Group as={Col} md={1} controlId="jumlah">
-                            <Form.Control type="number" value={data.jumlah}
+        <>
+            <Container
+                style={{
+                    backgroundColor: "whitesmoke",
+                    padding: "2%",
+                    borderRadius: "10px",
+                }}
+            >
+                <Form style={{ marginTop: '15px' }} onSubmit={handleSubmit}>
+                    <h2>Tambah Sarana & Pra-sarana</h2>
+                    <Row style={{ marginBottom: '15px' }}>
+                        <Form.Group as={Col} md={3} controlId="divisi">
+                            <Form.Label>Divisi</Form.Label>
+                            <SansDivisiDropdown
+                                value={formData.divisi}
+                                onChange={handleChange}
+                                required
+                                disabled={loading}
                             />
                         </Form.Group>
-                        <Form.Group as={Col} md={2} controlId="satuan">
-                            <Form.Select
-                                value={data.satuan}
-                            >
-                                <option value="">Pilih</option>
-                                <option value="buah">Buah</option>
-                                <option value="set">Set</option>
-                                <option value="lusin">Lusin</option>
-                                <option value="klogram">Kilogram</option>
-                                <option value="meter">Meter</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group as={Col} md={2} controlId="layakPakai">
-                            <Form.Control type="number" value={data.layakPakai}
+                        <Form.Group as={Col} md={3}>
+                            <Form.Label>Nama</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name='nama'
+                                placeholder="Nama Sarana"
+                                value={formData.nama}
+                                onChange={handleChange}
+                                required
+                                disabled={loading}
                             />
                         </Form.Group>
-                        <Form.Group as={Col} md={2} controlId="tidakLayakPakai ">
-                            <Form.Control type="number" value={data.tidakLayakPakai}
+                        <Form.Group as={Col} md={3}>
+                            <Form.Label>Jumlah</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name='jumlah'
+                                placeholder="Jumlah"
+                                value={formData.jumlah}
+                                onChange={handleChange}
+                                disabled={loading}
                             />
                         </Form.Group>
-                        <Form.Group as={Col} md={2} controlId="keterangan">
-                            <Form.Control type="text" value={data.keterangan} placeholder="Keterangan" />
+                        <Form.Group as={Col} md={3}>
+                            <Form.Label>Satuan</Form.Label>
+                            <Form.Control
+                                list="satuanOptions"
+                                type='text'
+                                name='satuan'
+                                placeholder="Satuan"
+                                value={formData.satuan}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                            <datalist id="satuanOptions">
+                                {satuanList.map((satuan,index) => (
+                                    <option key={index} value={satuan}>{satuan}</option>
+                                ))}
+                            </datalist>
                         </Form.Group>
                     </Row>
-                ))}
-                <Row as={Col} style={{ marginBottom: '5px' }}>
-                    <Form.Group as={Col} md={1} style={{ display: 'flex' }}>
-                        <Button variant="success" onClick={handleAddSarana} className='button-plus'>
-                            <PlusLg className='pluslg-custom' />
-                        </Button>
-                        {saranaCount > 1 && (
-                            <Button variant="danger" onClick={handleSaranaRemove} className='button-delete'>
-                                <Trash className='trash-custom' />
-                            </Button>
-                        )}
-                    </Form.Group>
-                </Row>
-                <Button variant="primary" type="submit" style={
-                    {
-                        width: '30%',
-                        margin: '0 35%'
-                    }
-                }>
-                    Submit
-                </Button>
-            </Form>
-        </Container>
+                    <Row style={{ marginBottom: '20px' }}>
+                        <Form.Group as={Col} md={3} >
+                            <Form.Label>Layak Pakai</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name='layak_pakai'
+                                placeholder="Layak Pakai"
+                                value={formData.layak_pakai}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </Form.Group>
+                        <Form.Group as={Col} md={3} >
+                            <Form.Label>Tidak Layak Pakai</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name='tdk_layak_pakai'
+                                placeholder="Tidak layak Pakai"
+                                value={formData.tdk_layak_pakai}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </Form.Group>
+                        <Form.Group as={Col} md={6} >
+                            <Form.Label>keterangan</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name='keterangan'
+                                placeholder="Keterangan"
+                                value={formData.keterangan}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </Form.Group>
+                    </Row>
+                    <Button
+                        variant="primary"
+                        type="submit"
+                        disabled={loading}
+                        style={{ width: "30%",margin: "5px 35% 0 35%" }}
+                    >
+                        {loading ? <Spinner animation="border" size="sm" /> : 'Submit'}
+                    </Button>
+                </Form>
+            </Container>
+
+            <SansNotify
+                show={showNotify}
+                onHide={handleCloseNotify}
+                status={status}
+                onSuccess={successMessage}
+                onError={errorMessage}
+            />
+
+        </>
     );
 }
 export default SaranaInput;
