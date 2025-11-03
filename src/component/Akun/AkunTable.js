@@ -1,9 +1,19 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
 import { Table, Container, Form, Row, Col, Button, Modal, ModalBody } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { AkunPrint } from './AkunPrint';
 import axios from 'axios';
 import {
+=======
+import React,{ useEffect,useState } from 'react';
+import { Table,Container,Form,Row,Col,Button,Modal, ModalBody } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { AkunPrint } from './AkunPrint';
+import axios from 'axios';
+import 
+{
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
   SansLoadOrNotImage,
   SansDeleteModal,
   SansSpinnerOnTable,
@@ -23,27 +33,51 @@ import AkunEdit from './AkunEdit';
 import { Download } from 'react-bootstrap-icons';
 import AkunInput from './AkunInput';
 
+<<<<<<< HEAD
 function AkunTable() {
+=======
+function AkunTable()
+{
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
   const currentJabatan = sessionStorage.getItem('jabatan');
   const currentNomor = sessionStorage.getItem('nomor_anggota');
   const currentToken = sessionStorage.getItem('token');
 
+<<<<<<< HEAD
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   //fetch
   const [tableData, setTableData] = useState([]);
   const { sortedData, requestSort, getSortIcon } = SansSortableTable({
+=======
+  const [loading,setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  //fetch
+  const [tableData,setTableData] = useState([]);
+  const { sortedData,requestSort,getSortIcon } = SansSortableTable({
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     data: tableData,
     defaultSort: 'nomor_anggota',
     type: 'ascending'
   });
 
+<<<<<<< HEAD
   useEffect(() => {
     fetchTableData();
   }, []);
 
   const fetchTableData = async () => {
+=======
+  useEffect(() =>
+  {
+    fetchTableData();
+  },[]);
+
+  const fetchTableData = async () =>
+  {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     setLoading(true);
 
     try {
@@ -53,7 +87,11 @@ function AkunTable() {
         },
 
       });
+<<<<<<< HEAD
       console.log('Data fetched: ', response.data);
+=======
+      console.log('Data fetched: ',response.data);
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
 
       const formattedData = response.data.data.map(item => ({
         ...item,
@@ -65,8 +103,14 @@ function AkunTable() {
       const uniqueListData = [...new Set(response.data.data.map(item => item.jabatan))];
       setUniqueList(uniqueListData);
 
+<<<<<<< HEAD
     } catch (error) {
       console.error('Error fetching data:', error);
+=======
+    } catch (error)
+    {
+      console.error('Error fetching data:',error);
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
       console.log(error.response);
     } finally {
       setLoading(false);
@@ -86,12 +130,22 @@ function AkunTable() {
   };
 
   //filter, sort, search
+<<<<<<< HEAD
   const [uniqueList, setUniqueList] = useState([]);
   const [filter, setFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filtered, setFiltered] = useState([]);
 
   useEffect(() => {
+=======
+  const [uniqueList,setUniqueList] = useState([]);
+  const [filter,setFilter] = useState('');
+  const [searchTerm,setSearchTerm] = useState('');
+  const [filtered,setFiltered] = useState([]);
+
+  useEffect(() =>
+  {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     const filtered = sortedData
       .filter(item =>
         (filter ? item.jabatan === filter : true) &&
@@ -105,15 +159,23 @@ function AkunTable() {
       );
 
     setFiltered(filtered);
+<<<<<<< HEAD
   }, [filter, searchTerm, sortedData]);
 
   const handleClearAll = () => {
+=======
+  },[filter,searchTerm,sortedData]);
+
+  const handleClearAll = () =>
+  {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     setFilter('');
     setSearchTerm('');
     requestSort('');
   };
 
   //Add
+<<<<<<< HEAD
   const [showAdd, setShowAdd] = useState(false);
 
   const handleShowAdd = () => {
@@ -121,14 +183,32 @@ function AkunTable() {
   }
 
   const handleCloseAdd = () => {
+=======
+  const [showAdd,setShowAdd] = useState(false);
+
+  const handleShowAdd = () =>
+  {
+    setShowAdd(true);
+  }
+
+  const handleCloseAdd = () =>
+  {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     setShowAdd(false);
   }
 
   // Edit
+<<<<<<< HEAD
   const [isEditing, setIsEditing] = useState(false);
   const [editingRowId, setEditingRowId] = useState(null);
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
   const [formData, setFormData] = useState({
+=======
+  const [isEditing,setIsEditing] = useState(false);
+  const [editingRowId,setEditingRowId] = useState(null);
+  const [isEditingPhoto,setIsEditingPhoto] = useState(false);
+  const [formData,setFormData] = useState({
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     nama: "",
     nomor_anggota: "",
     fe_password: "",
@@ -137,7 +217,12 @@ function AkunTable() {
     foto: null,
   });
 
+<<<<<<< HEAD
   const handleEditClick = async (item) => {
+=======
+  const handleEditClick = async (item) =>
+  {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     setEditingRowId(item.id);
     setFormData({
       nama: item.nama,
@@ -166,6 +251,7 @@ function AkunTable() {
   };
 
   // Delete
+<<<<<<< HEAD
   const [deleteId, setDeleteId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState(false);
@@ -176,6 +262,21 @@ function AkunTable() {
       setDeleteFailed(false);
       try {
         await axios.delete(`http://localhost:8000/api/user/${deleteId}`, {
+=======
+  const [deleteId,setDeleteId] = useState(null);
+  const [showDeleteModal,setShowDeleteModal] = useState(false);
+  const [deleteFailed,setDeleteFailed] = useState(false);
+
+  const handleDelete = async () =>
+  {
+    if (deleteId)
+    {
+      setLoading(true);
+      setDeleteFailed(false);
+      try
+      {
+        await axios.delete(`http://localhost:8000/api/user/${deleteId}`,{
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
           headers: {
             'Authorization': `Bearer ${currentToken}`,
           },
@@ -186,16 +287,31 @@ function AkunTable() {
         setStatus('success');
         setShowNotify(true);
         fetchTableData();
+<<<<<<< HEAD
       } catch (err) {
+=======
+      } catch (err)
+      {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setErrorMessage("Terjadi Kesalahan");
         setStatus('error');
         setShowNotify(true);
         setDeleteFailed(true);
+<<<<<<< HEAD
         console.error("Delete failed:", err);
         if (err.response) {
           console.error("Response data:", err.response.data);
         }
       } finally {
+=======
+        console.error("Delete failed:",err);
+        if (err.response)
+        {
+          console.error("Response data:",err.response.data);
+        }
+      } finally
+      {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setLoading(false);
       }
     }
@@ -212,16 +328,27 @@ function AkunTable() {
   };
 
   //notify
+<<<<<<< HEAD
   const [status, setStatus] = useState(null);
   const [showNotify, setShowNotify] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleCloseNotify = () => {
+=======
+  const [status,setStatus] = useState(null);
+  const [showNotify,setShowNotify] = useState(false);
+  const [successMessage,setSuccessMessage] = useState("");
+  const [errorMessage,setErrorMessage] = useState("");
+
+  const handleCloseNotify = () =>
+  {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     setShowNotify(false);
     setSuccessMessage("");
     setErrorMessage("");
 
+<<<<<<< HEAD
     if (status === 'success') {
       handleCancelClick();
     }
@@ -237,12 +364,37 @@ function AkunTable() {
   const [pdfUrl, setPdfUrl] = useState(null);
 
   const handleShowPreview = () => {
+=======
+    if (status === 'success')
+    {
+      handleCancelClick();
+    }
+
+    setTimeout(() =>
+    {
+      setStatus(null);
+      setIsEditingPhoto(false);
+    },100);
+  };
+
+  // print
+  const [showPreview,setShowPreview] = useState(false);
+  const [pdfUrl,setPdfUrl] = useState(null);
+
+  const handleShowPreview = () =>
+  {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     const url = AkunPrint(filtered);
     setPdfUrl(url);
     setShowPreview(true);
   }
 
+<<<<<<< HEAD
   const handleClosePerview = () => {
+=======
+  const handleClosePerview = () =>
+  {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     setShowPreview(false);
     setPdfUrl(null);
   }
@@ -255,9 +407,15 @@ function AkunTable() {
           <Row style={{ marginBottom: '10px' }}>
             <Form.Group as={Col} md={2}>
               <SansFilter
+<<<<<<< HEAD
                 filterOptions={uniqueList.map(jabatan => ({ value: jabatan, label: jabatan }))}
                 selectedFilter={filter}
                 text='Semua'
+=======
+                filterOptions={uniqueList.map(jabatan => ({ value: jabatan,label: jabatan }))}
+                selectedFilter={filter}
+                text='Jabatan'
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 onFilterChange={setFilter}
               />
             </Form.Group>
@@ -313,7 +471,11 @@ function AkunTable() {
               {loading ? (
                 <SansSpinnerOnTable />
               ) : filtered.length > 0 ? (
+<<<<<<< HEAD
                 filtered.map((item, index) => (
+=======
+                filtered.map((item,index) => (
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                   <tr key={item.id}>
                     <td className='text-center'>{index + 1}</td>
                     <td className='text-center'>
@@ -358,7 +520,11 @@ function AkunTable() {
 
       </Container>
 
+<<<<<<< HEAD
       <Modal show={showAdd} onHide={handleCloseAdd} style={{ borderRadius: '5px' }} size='xl' centered>
+=======
+      <Modal show={showAdd} onHide={handleCloseAdd} style={{borderRadius: '5px' }} size='xl' centered>
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         <Modal.Header closeButton>
           <Modal.Title>Tambah Akun</Modal.Title>
         </Modal.Header>

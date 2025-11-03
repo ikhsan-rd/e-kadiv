@@ -1,11 +1,20 @@
 import '../../css/inputdatabase.scss';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
 import { Container, Form, Row, Col, Table, Button, Modal, ModalBody, Spinner } from 'react-bootstrap';
 import { Download } from 'react-bootstrap-icons';
 import { AtletPrint } from './AtletPrint';
 import axios from 'axios';
 import {
+=======
+import { Container,Form,Row,Col,Table,Button,Modal,ModalBody, Spinner } from 'react-bootstrap';
+import { Download } from 'react-bootstrap-icons';
+import { AtletPrint } from './AtletPrint';
+import axios from 'axios';
+import
+{
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     SansSpinnerOnTable,
     SansNothingOnTable,
     SansLoadOrNotImage,
@@ -24,14 +33,24 @@ import {
 import AtletEdit from './AtletEdit';
 import AtletInput from './AtletInput';
 
+<<<<<<< HEAD
 function AtletTable() {
     const currentJabatan = sessionStorage.getItem('jabatan');
     const currentDivisi = sessionStorage.getItem('divisi');
     const currentToken = sessionStorage.getItem('token');
+=======
+function AtletTable()
+{
+    const currentJabatan = sessionStorage.getItem('jabatan');
+    const currentDivisi = sessionStorage.getItem('divisi');
+    const currentToken = sessionStorage.getItem('token');
+
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
 
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+<<<<<<< HEAD
 
     //Fetch
     const [tableData, setTableData] = useState([]);
@@ -46,6 +65,24 @@ function AtletTable() {
     }, []);
 
     const fetchTableData = async () => {
+=======
+
+    //Fetch
+    const [tableData,setTableData] = useState([]);
+    const { sortedData,requestSort,getSortIcon } = SansSortableTable({
+        data: tableData,
+        defaultSort: 'nama',
+        type: 'ascending'
+    });
+
+    useEffect(() =>
+    {
+        fetchTableData();
+    },[]);
+
+    const fetchTableData = async () =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setLoading(true);
 
         try {
@@ -54,7 +91,11 @@ function AtletTable() {
                     'Authorization': `Bearer ${currentToken}`,
                 },
             });
+<<<<<<< HEAD
             console.log('Data fetched: ', response.data);
+=======
+            console.log('Data fetched: ',response.data);
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
 
             const formattedData = response.data.data.map(item => ({
                 ...item,
@@ -63,6 +104,7 @@ function AtletTable() {
             }));
 
             setTableData(formattedData);
+<<<<<<< HEAD
             console.log('format', formattedData);
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -72,22 +114,55 @@ function AtletTable() {
                 console.error('Error response not available');
             }
         } finally {
+=======
+            console.log('format',formattedData);
+        } catch (error)
+        {
+            console.error('Error fetching data:',error);
+            if (error.response)
+            {
+                console.log(error.response);
+            } else
+            {
+                console.error('Error response not available');
+            }
+        } finally
+        {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             setLoading(false);
         }
     };
 
+<<<<<<< HEAD
     const formatted_status_anggota = (status_anggota) => {
         if (status_anggota === 'Y') {
             return 'Yes';
         } else if (status_anggota === 'N') {
             return 'Non';
         } else {
+=======
+    const formatted_status_anggota = (status_anggota) =>
+    {
+        if (status_anggota === 'Y')
+        {
+            return 'Yes';
+        } else if (status_anggota === 'N')
+        {
+            return 'Non';
+        } else
+        {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             return '';
         }
     };
 
 
+<<<<<<< HEAD
     const calculateSemester = (angkatan) => {
+=======
+    const calculateSemester = (angkatan) =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         const currentYear = new Date().getFullYear();
         const yearsElapsed = currentYear - angkatan;
         const currentSemester = yearsElapsed * 2 + 1;
@@ -97,6 +172,7 @@ function AtletTable() {
     };
 
     //Filter, Sort, Search
+<<<<<<< HEAD
     const [filter, setFilter] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [filtered, setFiltered] = useState([]);
@@ -127,6 +203,43 @@ function AtletTable() {
 
         setFiltered(filteredData);
     }, [filter, searchTerm, sortedData, currentDivisi]);
+=======
+    const [filter,setFilter] = useState('');
+    const [searchTerm,setSearchTerm] = useState('');
+    const [filtered,setFiltered] = useState([]);
+
+    useEffect(() =>
+    {
+        let filteredData = sortedData;
+
+        if (currentDivisi === '-')
+        {
+            if (filter !== '')
+            {
+                filteredData = filteredData.filter(item => item.divisi === filter);
+            }
+        } else
+        {
+            filteredData = filteredData.filter(item => item.divisi === currentDivisi);
+        }
+
+        if (searchTerm)
+        {
+            const lowerSearch = searchTerm.toLowerCase();
+            filteredData = filteredData.filter(item =>
+                item.nama.toLowerCase().includes(lowerSearch) ||
+                item.tempat_lahir.toLowerCase().includes(lowerSearch) ||
+                item.tgl_lahir.toString().includes(searchTerm) ||
+                item.jk.toLowerCase().includes(lowerSearch) ||
+                item.jurusan.toLowerCase().includes(lowerSearch) ||
+                calculateSemester(item.angkatan).toString().includes(searchTerm) ||
+                item.status_anggota.toLowerCase().includes(lowerSearch)
+            );
+        }
+
+        setFiltered(filteredData);
+    },[filter,searchTerm,sortedData,currentDivisi]);
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
 
     const handleClearAll = () => {
         setFilter('');
@@ -135,6 +248,7 @@ function AtletTable() {
     };
 
     //Add
+<<<<<<< HEAD
     const [showAdd, setShowAdd] = useState(false);
 
     const handleShowAdd = () => {
@@ -142,10 +256,22 @@ function AtletTable() {
     }
 
     const handleCloseAdd = () => {
+=======
+    const [showAdd,setShowAdd] = useState(false);
+
+    const handleShowAdd = () =>
+    {
+        setShowAdd(true);
+    }
+
+    const handleCloseAdd = () =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setShowAdd(false);
     }
 
     // Edit
+<<<<<<< HEAD
     const [isEditing, setIsEditing] = useState(false);
     const [editingRowId, setEditingRowId] = useState(null);
     const [isEditingPhoto, setIsEditingPhoto] = useState(false);
@@ -153,6 +279,15 @@ function AtletTable() {
     const [doneFile, setDoneFile] = useState(false);
 
     const [formData, setFormData] = useState({
+=======
+    const [isEditing,setIsEditing] = useState(false);
+    const [editingRowId,setEditingRowId] = useState(null);
+    const [isEditingPhoto,setIsEditingPhoto] = useState(false);
+    const [isEditingFile,setIsEditingFile] = useState(false);
+    const [doneFile,setDoneFile] = useState(false);
+
+    const [formData,setFormData] = useState({
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         nama: "",
         npm: "",
         jk: "",
@@ -169,8 +304,14 @@ function AtletTable() {
         ktm_sia: null,
     });
 
+<<<<<<< HEAD
     const [selectedFile, setSelectedFile] = useState(null);
     const handleEditClick = (item) => {
+=======
+    const [selectedFile,setSelectedFile] = useState(null);
+    const handleEditClick = (item) =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setEditingRowId(item.id);
         setFormData({
             nama: item.nama,
@@ -193,10 +334,18 @@ function AtletTable() {
         setIsEditingPhoto(false);
         setIsEditingFile(false);
         setDoneFile(false);
+<<<<<<< HEAD
 
     };
 
     const handleCancelClick = () => {
+=======
+
+    };
+
+    const handleCancelClick = () =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setIsEditing(false);
         setEditingRowId(null);
         setFormData({
@@ -222,6 +371,7 @@ function AtletTable() {
     };
 
     //Delete
+<<<<<<< HEAD
     const [deleteId, setDeleteId] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteFailed, setDeleteFailed] = useState(false);
@@ -232,6 +382,21 @@ function AtletTable() {
             setDeleteFailed(false);
             try {
                 await axios.delete(`http://localhost:8000/api/atlet/${deleteId}`, {
+=======
+    const [deleteId,setDeleteId] = useState(null);
+    const [showDeleteModal,setShowDeleteModal] = useState(false);
+    const [deleteFailed,setDeleteFailed] = useState(false);
+
+    const handleDelete = async () =>
+    {
+        if (deleteId)
+        {
+            setLoading(true);
+            setDeleteFailed(false);
+            try
+            {
+                await axios.delete(`http://localhost:8000/api/atlet/${deleteId}`,{
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                     headers: {
                         'Authorization': `Bearer ${currentToken}`,
                     },
@@ -242,16 +407,31 @@ function AtletTable() {
                 setStatus('success');
                 setShowNotify(true);
                 fetchTableData();
+<<<<<<< HEAD
             } catch (err) {
+=======
+            } catch (err)
+            {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 setErrorMessage("Terjadi Kesalahan");
                 setStatus('error');
                 setShowNotify(true);
                 setDeleteFailed(true);
+<<<<<<< HEAD
                 console.error("Delete failed:", err);
                 if (err.response) {
                     console.error("Response data:", err.response.data);
                 }
             } finally {
+=======
+                console.error("Delete failed:",err);
+                if (err.response)
+                {
+                    console.error("Response data:",err.response.data);
+                }
+            } finally
+            {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 setLoading(false);
             }
         }
@@ -268,6 +448,7 @@ function AtletTable() {
     };
 
     //notify
+<<<<<<< HEAD
     const [status, setStatus] = useState(null);
     const [showNotify, setShowNotify] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
@@ -290,6 +471,34 @@ function AtletTable() {
 
     const handleShowPreview = () => {
         if (currentDivisi === '-' && (!filter || filter === '' || filter === '-')) {
+=======
+    const [status,setStatus] = useState(null);
+    const [showNotify,setShowNotify] = useState(false);
+    const [successMessage,setSuccessMessage] = useState("");
+    const [errorMessage,setErrorMessage] = useState("");
+
+    const handleCloseNotify = () =>
+    {
+        setShowNotify(false);
+        setSuccessMessage("");
+        setErrorMessage("");
+        setTimeout(() =>
+        {
+            setStatus(null);
+            setIsEditingPhoto(false);
+            setIsEditingFile(false);
+        },100);
+    };
+
+    // print
+    const [showPreview,setShowPreview] = useState(false);
+    const [pdfUrl,setPdfUrl] = useState(null);
+
+    const handleShowPreview = () =>
+    {
+        if (!filter || filter === '' || filter === '-')
+        {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             setErrorMessage("Pilih divisi terlebih dahulu");
             setStatus('error');
             setShowNotify(true);
@@ -301,12 +510,21 @@ function AtletTable() {
             semester: calculateSemester(item.angkatan)
         }));
 
+<<<<<<< HEAD
         const url = AtletPrint(processedData, filter, calculateSemester);
+=======
+        const url = AtletPrint(processedData,filter,calculateSemester);
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setPdfUrl(url);
         setShowPreview(true);
     };
 
+<<<<<<< HEAD
     const handleClosePerview = () => {
+=======
+    const handleClosePerview = () =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setShowPreview(false);
         setPdfUrl(null);
     }
@@ -379,7 +597,11 @@ function AtletTable() {
                             {loading ? (
                                 <SansSpinnerOnTable />
                             ) : filtered.length > 0 ? (
+<<<<<<< HEAD
                                 filtered.map((item, index) => (
+=======
+                                filtered.map((item,index) => (
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                                     <tr key={item.id}>
                                         <td className='text-center'>{index + 1}</td>
                                         <td className='text-center'>

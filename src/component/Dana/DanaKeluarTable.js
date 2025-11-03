@@ -1,4 +1,5 @@
 import '../../css/inputdatabase.scss';
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Button, Form, Row, Col, Table, Modal } from 'react-bootstrap';
@@ -6,6 +7,16 @@ import { Download, PlusLg } from 'react-bootstrap-icons';
 import { DanaKeluarPrint } from './DanaKeluarPrint';
 import axios from 'axios';
 import {
+=======
+import React,{ useState,useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Container,Button,Form,Row,Col,Table,Modal } from 'react-bootstrap';
+import { Download,PlusLg } from 'react-bootstrap-icons';
+import { DanaKeluarPrint } from './DanaKeluarPrint';
+import axios from 'axios';
+import
+{
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     SansSearch,
     SansSpinnerOnTable,
     SansButtonEdit,
@@ -26,12 +37,18 @@ import DanaKeluarEdit from './DanaKeluarEdit';
 import { SansButtonPrintAll } from '../ComponentCustom/Component/SansButton';
 import DanaKeluarInput from './DanaKeluarInput';
 
+<<<<<<< HEAD
 function DanaKeluarTable() {
+=======
+function DanaKeluarTable()
+{
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
 
     const currentJabatan = sessionStorage.getItem('jabatan');
     const currentDivisi = sessionStorage.getItem('divisi');
     const currentToken = sessionStorage.getItem('token');
     console.log(currentToken);
+<<<<<<< HEAD
 
 
     const [loading, setLoading] = useState(false);
@@ -39,11 +56,21 @@ function DanaKeluarTable() {
     // Fetch
     const [tableData, setTableData] = useState([]);
     const { sortedData, requestSort, getSortIcon } = SansSortableTable({
+=======
+    
+
+    const [loading,setLoading] = useState(false);
+
+    // Fetch
+    const [tableData,setTableData] = useState([]);
+    const { sortedData,requestSort,getSortIcon } = SansSortableTable({
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         data: tableData,
         defaultSort: 'tgl',
         type: 'ascending'
     });
 
+<<<<<<< HEAD
     useEffect(() => {
         fetchTableData();
     }, []);
@@ -53,13 +80,34 @@ function DanaKeluarTable() {
 
         try {
             const response = await axios.get('http://localhost:8000/api/dana-keluar', {
+=======
+    useEffect(() =>
+    {
+        fetchTableData();
+    },[]);
+
+    const fetchTableData = async () =>
+    {
+        setLoading(true);
+
+        try
+        {
+            const response = await axios.get('http://localhost:8000/api/dana-keluar',{
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 headers: {
                     'Authorization': `Bearer ${currentToken}`,
                 },
             });
+<<<<<<< HEAD
             console.log('Data fetched: ', response.data);
 
             const formattedData = response.data.data.map(item => {
+=======
+            console.log('Data fetched: ',response.data);
+
+            const formattedData = response.data.data.map(item =>
+            {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 return {
                     ...item,
                     formatted_tgl: SansFormatDate(item.tgl),
@@ -69,6 +117,7 @@ function DanaKeluarTable() {
             });
             setTableData(formattedData);
 
+<<<<<<< HEAD
         } catch (error) {
             console.error('Error fetching data:', error);
             if (error.response) {
@@ -77,11 +126,26 @@ function DanaKeluarTable() {
                 console.error('Error response not available');
             }
         } finally {
+=======
+        } catch (error)
+        {
+            console.error('Error fetching data:',error);
+            if (error.response)
+            {
+                console.log(error.response);
+            } else
+            {
+                console.error('Error response not available');
+            }
+        } finally
+        {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             setLoading(false);
         }
     };
 
     // Filter, sort, search
+<<<<<<< HEAD
     const [filter, setFilter] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [filtered, setFiltered] = useState([]);
@@ -98,6 +162,29 @@ function DanaKeluarTable() {
         }
 
         if (searchTerm) {
+=======
+    const [filter,setFilter] = useState('');
+    const [searchTerm,setSearchTerm] = useState('');
+    const [filtered,setFiltered] = useState([]);
+
+    useEffect(() =>
+    {
+        let filteredData = sortedData;
+
+        if (currentDivisi === '-')
+        {
+            if (filter !== '')
+            {
+                filteredData = filteredData.filter(item => item.divisi === filter);
+            }
+        } else
+        {
+            filteredData = filteredData.filter(item => item.divisi === currentDivisi);
+        }
+
+        if (searchTerm)
+        {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             const lowerSearch = searchTerm.toLowerCase();
             filteredData = filteredData.filter(item =>
                 item.divisi.toLowerCase().includes(lowerSearch) ||
@@ -110,27 +197,48 @@ function DanaKeluarTable() {
         }
 
         setFiltered(filteredData);
+<<<<<<< HEAD
     }, [filter, searchTerm, sortedData, currentDivisi]);
 
     const handleClearAll = () => {
+=======
+    },[filter,searchTerm,sortedData,currentDivisi]);
+
+    const handleClearAll = () =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setFilter('');
         setSearchTerm('');
         requestSort('');
     };
 
     // Show Nota
+<<<<<<< HEAD
     const [showModalNota, setShowModalNota] = useState(false);
     const [showNota, setShowNota] = useState('');
 
     const handleShowClick = async (item) => {
+=======
+    const [showModalNota,setShowModalNota] = useState(false);
+    const [showNota,setShowNota] = useState('');
+
+    const handleShowClick = async (item) =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setShowNota(item.nota_url);
         setShowModalNota(true);
     };
 
     // Edit
+<<<<<<< HEAD
     const [isEditing, setIsEditing] = useState(false);
     const [editingRowId, setEditingRowId] = useState(null);
     const [formData, setFormData] = useState({
+=======
+    const [isEditing,setIsEditing] = useState(false);
+    const [editingRowId,setEditingRowId] = useState(null);
+    const [formData,setFormData] = useState({
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         divisi: "",
         tgl: "",
         sumber_dana: "",
@@ -142,7 +250,12 @@ function DanaKeluarTable() {
         total: ""
     });
 
+<<<<<<< HEAD
     const handleEditClick = async (item) => {
+=======
+    const handleEditClick = async (item) =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setEditingRowId(item.id);
         setFormData({
             divisi: item.divisi,
@@ -158,7 +271,12 @@ function DanaKeluarTable() {
         setIsEditing(true);
     };
 
+<<<<<<< HEAD
     const handleCancelClick = () => {
+=======
+    const handleCancelClick = () =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setIsEditing(false);
         setEditingRowId(null);
         setFormData({
@@ -175,6 +293,7 @@ function DanaKeluarTable() {
     };
 
     // Delete
+<<<<<<< HEAD
     const [deleteId, setDeleteId] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -183,6 +302,19 @@ function DanaKeluarTable() {
             setLoading(true);
             try {
                 await axios.delete(`http://localhost:8000/api/dana-keluar/${deleteId}`, {
+=======
+    const [deleteId,setDeleteId] = useState(null);
+    const [showDeleteModal,setShowDeleteModal] = useState(false);
+
+    const handleDelete = async () =>
+    {
+        if (deleteId)
+        {
+            setLoading(true);
+            try
+            {
+                await axios.delete(`http://localhost:8000/api/dana-keluar/${deleteId}`,{
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                     headers: {
                         'Authorization': `Bearer ${currentToken}`,
                     },
@@ -192,6 +324,7 @@ function DanaKeluarTable() {
                 setStatus('success');
                 setShowNotify(true);
                 fetchTableData();
+<<<<<<< HEAD
             } catch (err) {
                 setErrorMessage("Terjadi Kesalahan");
                 setStatus('error');
@@ -201,23 +334,48 @@ function DanaKeluarTable() {
                     console.error("Response data:", err.response.data);
                 }
             } finally {
+=======
+            } catch (err)
+            {
+                setErrorMessage("Terjadi Kesalahan");
+                setStatus('error');
+                setShowNotify(true);
+                console.error("Delete failed:",err);
+                if (err.response)
+                {
+                    console.error("Response data:",err.response.data);
+                }
+            } finally
+            {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 handleCloseModalDelete();
                 setLoading(false);
             }
         }
     };
 
+<<<<<<< HEAD
     const handleDeleteConfirmation = (id) => {
+=======
+    const handleDeleteConfirmation = (id) =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setDeleteId(id);
         setShowDeleteModal(true);
     };
 
+<<<<<<< HEAD
     const handleCloseModalDelete = () => {
+=======
+    const handleCloseModalDelete = () =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setDeleteId(null);
         setShowDeleteModal(false);
     };
 
     // Notify
+<<<<<<< HEAD
     const [status, setStatus] = useState(null);
     const [showNotify, setShowNotify] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
@@ -240,27 +398,74 @@ function DanaKeluarTable() {
     };
 
     const handleCloseAdd = () => {
+=======
+    const [status,setStatus] = useState(null);
+    const [showNotify,setShowNotify] = useState(false);
+    const [successMessage,setSuccessMessage] = useState("");
+    const [errorMessage,setErrorMessage] = useState("");
+
+    const handleCloseNotify = () =>
+    {
+        setShowNotify(false);
+        setSuccessMessage("");
+        setErrorMessage("");
+        setTimeout(() =>
+        {
+            setStatus(null);
+        },100);
+    };
+
+    // Add
+    const [showAddDanaKeluar,setShowAddDanaKeluarDanaKeluar] = useState(false);
+
+    const handleshowAddDanaKeluar = () =>
+    {
+        setShowAddDanaKeluarDanaKeluar(true);
+    };
+
+    const handleCloseAdd = () =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setShowAddDanaKeluarDanaKeluar(false);
     };
 
 
     // print
+<<<<<<< HEAD
     const [showPreview, setShowPreview] = useState(false);
     const [pdfUrl, setPdfUrl] = useState(null);
 
     const handleShowPreview = () => {
         if (currentDivisi === '-' && (!filter || filter === '' || filter === '-')) {
+=======
+    const [showPreview,setShowPreview] = useState(false);
+    const [pdfUrl,setPdfUrl] = useState(null);
+
+    const handleShowPreview = () =>
+    {
+        if (!filter || filter === '' || filter === '-')
+        {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             setErrorMessage("Pilih divisi terlebih dahulu");
             setStatus('error');
             setShowNotify(true);
             return;
         }
+<<<<<<< HEAD
         const url = DanaKeluarPrint(filtered, filter);
+=======
+        const url = DanaKeluarPrint(filtered,filter);
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setPdfUrl(url);
         setShowPreview(true);
     };
 
+<<<<<<< HEAD
     const handleClosePerview = () => {
+=======
+    const handleClosePerview = () =>
+    {
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setShowPreview(false);
         setPdfUrl(null);
     }
@@ -335,7 +540,11 @@ function DanaKeluarTable() {
                             {loading ? (
                                 <SansSpinnerOnTable />
                             ) : filtered.length > 0 ? (
+<<<<<<< HEAD
                                 filtered.map((item, index) => (
+=======
+                                filtered.map((item,index) => (
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                                     <tr key={item.id}>
                                         <td className='text-center'>{index + 1}</td>
                                         <td>{item.formatted_tgl}</td>
@@ -368,6 +577,7 @@ function DanaKeluarTable() {
                 </Form>
             </Container>
 
+<<<<<<< HEAD
             <DanaKeluarEdit
                 formData={formData}
                 setFormData={setFormData}
@@ -383,6 +593,29 @@ function DanaKeluarTable() {
                 fetchTableData={fetchTableData}
             />
 
+=======
+            <Modal show={isEditing} onHide={handleCancelClick} size='md' centered >
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Dana Keluar</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <DanaKeluarEdit
+                        formData={formData}
+                        setFormData={setFormData}
+                        loading={loading}
+                        setLoading={setLoading}
+                        editingRowId={editingRowId}
+                        isEditing={isEditing}
+                        handleCancelClick={handleCancelClick}
+                        setStatus={setStatus}
+                        setShowNotify={setShowNotify}
+                        setErrorMessage={setErrorMessage}
+                        setSuccessMessage={setSuccessMessage}
+                        fetchTableData={fetchTableData}
+                    />
+                </Modal.Body>
+            </Modal>
+>>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
 
             <Modal show={showPreview} onHide={handleClosePerview} style={{ borderRadius: '5px' }} size='lg'>
                 <Modal.Header closeButton>Pratinjau PDF</Modal.Header>
