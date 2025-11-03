@@ -1,0 +1,16 @@
+[33m034e74d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: checkout: moving from a3483058bf086d0b4f91f4a53307dea9d5b0ce7a to master
+[33ma348305[m HEAD@{1}: checkout: moving from master to a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
+[33m034e74d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{2}: reset: moving to HEAD
+[33m034e74d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{3}: commit (merge): Merge branch 'master' of https://github.com/ikhsan-rd/e-kadiv
+[33mdd60d70[m HEAD@{4}: commit: any
+[33m5f7c805[m HEAD@{5}: commit: Form Edit Pelatih dan Atlet
+[33ma89d88b[m HEAD@{6}: commit: Nambah Reusable Component, Delete dan Fetch data atlet dan pelatih
+[33m83b2036[m HEAD@{7}: commit: Nambah Reusable Component, Delete dan Fetch data atlet dan pelatih
+[33m46fb301[m HEAD@{8}: commit: update database/team/ bagian table
+[33mac30d10[m HEAD@{9}: commit: stress
+[33m657e885[m HEAD@{10}: pull origin master: Fast-forward
+[33m188dffd[m HEAD@{11}: reset: moving to HEAD
+[33m188dffd[m HEAD@{12}: pull origin master: Fast-forward
+[33me1ae9af[m HEAD@{13}: reset: moving to HEAD
+[33me1ae9af[m HEAD@{14}: commit: yeah
+[33m24447c0[m HEAD@{15}: commit (initial): Initialize project using Create React App

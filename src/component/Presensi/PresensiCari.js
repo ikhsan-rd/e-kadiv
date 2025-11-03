@@ -1,15 +1,7 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { Modal, Table, Form, Row, Col, Button } from 'react-bootstrap';
 import axios from 'axios';
 import {
-=======
-import React,{ useState,useEffect } from 'react';
-import { Modal,Table,Form,Row,Col,Button } from 'react-bootstrap';
-import axios from 'axios';
-import
-{
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     SansFilter,
     SansNothingOnTable,
     SansSearch,
@@ -21,33 +13,20 @@ import
     SansButtonAddData,
 } from '../ComponentCustom/SansComps';
 
-<<<<<<< HEAD
 function PresensiCari({ show, handleClose, setJadwalData }) {
-=======
-function PresensiCari({ show,handleClose,setJadwalData })
-{
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     const currentJabatan = sessionStorage.getItem('jabatan');
     const currentToken = sessionStorage.getItem('token');
     const currentDivisi = sessionStorage.getItem('divisi');
 
-<<<<<<< HEAD
     const [loading, setLoading] = useState(false);
 
     const [tableData, setTableData] = useState([]);
     const { sortedData, requestSort, getSortIcon } = SansSortableTable({
-=======
-    const [loading,setLoading] = useState(false);
-
-    const [tableData,setTableData] = useState([]);
-    const { sortedData,requestSort,getSortIcon } = SansSortableTable({
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         data: tableData,
         defaultSort: 'formatted_tgl_mulai',
         type: 'descending',
     });
 
-<<<<<<< HEAD
     useEffect(() => {
         fetchTableData();
     }, []);
@@ -57,34 +36,13 @@ function PresensiCari({ show,handleClose,setJadwalData })
 
         try {
             const response = await axios.get('http://localhost:8000/api/jadwal', {
-=======
-    useEffect(() =>
-    {
-        fetchTableData();
-    },[]);
-
-    const fetchTableData = async () =>
-    {
-        setLoading(true);
-
-        try
-        {
-            const response = await axios.get('http://localhost:8000/api/jadwal',{
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 headers: {
                     'Authorization': `Bearer ${currentToken}`,
                 },
             });
-<<<<<<< HEAD
             console.log('Data fetched: ', response.data);
 
             const formattedData = response.data.data.map(item => {
-=======
-            console.log('Data fetched: ',response.data);
-
-            const formattedData = response.data.data.map(item =>
-            {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 return {
                     ...item,
                     formatted_tgl_mulai: SansFormatDate(item.tgl_mulai),
@@ -95,7 +53,6 @@ function PresensiCari({ show,handleClose,setJadwalData })
             });
 
             setTableData(formattedData);
-<<<<<<< HEAD
         } catch (error) {
             console.error('Error fetching data:', error);
             if (error.response) {
@@ -104,44 +61,20 @@ function PresensiCari({ show,handleClose,setJadwalData })
                 console.error('Error response not available');
             }
         } finally {
-=======
-        } catch (error)
-        {
-            console.error('Error fetching data:',error);
-            if (error.response)
-            {
-                console.log(error.response);
-            } else
-            {
-                console.error('Error response not available');
-            }
-        } finally
-        {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             setLoading(false);
         }
     };
 
     //filter, sort, search
-<<<<<<< HEAD
     const [filter, setFilter] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [filtered, setFiltered] = useState([]);
 
     useEffect(() => {
-=======
-    const [filter,setFilter] = useState('');
-    const [searchTerm,setSearchTerm] = useState('');
-    const [filtered,setFiltered] = useState([]);
-
-    useEffect(() =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         let filteredData = sortedData;
 
         filteredData = filteredData.filter(item => item.status === 'N');
 
-<<<<<<< HEAD
         if (currentDivisi === '-') {
             if (filter !== '') {
                 filteredData = filteredData.filter(item => item.divisi === filter);
@@ -151,21 +84,6 @@ function PresensiCari({ show,handleClose,setJadwalData })
         }
 
         if (searchTerm) {
-=======
-        if (currentDivisi === '-')
-        {
-            if (filter !== '')
-            {
-                filteredData = filteredData.filter(item => item.divisi === filter);
-            }
-        } else
-        {
-            filteredData = filteredData.filter(item => item.divisi === currentDivisi);
-        }
-
-        if (searchTerm)
-        {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             const lowerSearch = searchTerm.toLowerCase();
             filteredData = filteredData.filter(item =>
                 item.divisi.toLowerCase().includes(lowerSearch) ||
@@ -181,27 +99,15 @@ function PresensiCari({ show,handleClose,setJadwalData })
         }
 
         setFiltered(filteredData);
-<<<<<<< HEAD
     }, [filter, searchTerm, sortedData, currentDivisi]);
 
     const handleClearAll = () => {
-=======
-    },[filter,searchTerm,sortedData,currentDivisi]);
-
-    const handleClearAll = () =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setFilter('');
         setSearchTerm('');
         requestSort('');
     };
 
-<<<<<<< HEAD
     const handleSelectJadwal = (jadwal) => {
-=======
-    const handleSelectJadwal = (jadwal) =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setJadwalData(jadwal);
         handleClose();
     };
@@ -275,11 +181,7 @@ function PresensiCari({ show,handleClose,setJadwalData })
                         {loading ? (
                             <SansSpinnerOnTable />
                         ) : filtered.length > 0 ? (
-<<<<<<< HEAD
                             filtered.map((item, index) => (
-=======
-                            filtered.map((item,index) => (
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                                 <tr key={item.id} onClick={() => handleSelectJadwal(item)} style={{ cursor: 'pointer' }}>
                                     <td className='text-center'>{index + 1}</td>
                                     <td>

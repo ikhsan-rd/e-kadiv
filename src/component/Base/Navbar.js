@@ -1,7 +1,6 @@
 // NavbarCustom.js
 import '../../css/navbar.scss';
 import '../../css/button.scss';
-<<<<<<< HEAD
 import { Button, Container, Form, Nav, Navbar, NavDropdown, Modal, Image, Spinner } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search } from 'react-bootstrap-icons';
@@ -11,18 +10,6 @@ import { clearToken } from './../../utils/tokenConfig';
 import { SansLoadOrNotImage, SansNotify } from '../ComponentCustom/SansComps';
 
 function NavigationBar() {
-=======
-import { Button,Container,Form,Nav,Navbar,NavDropdown,Modal,Image,Spinner } from 'react-bootstrap';
-import { Link,useNavigate,useLocation } from 'react-router-dom';
-import { Search } from 'react-bootstrap-icons';
-import React,{ useState,useEffect } from 'react';
-import axios from 'axios';
-import { clearToken } from './../../utils/tokenConfig';
-import { SansLoadOrNotImage,SansNotify } from '../ComponentCustom/SansComps';
-
-function NavigationBar()
-{
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
   const currentJabatan = sessionStorage.getItem("jabatan")
   const currentNomor = sessionStorage.getItem("nomor_anggota")
   const currentFoto = sessionStorage.getItem("foto");
@@ -31,7 +18,6 @@ function NavigationBar()
   const navigate = useNavigate();
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
-<<<<<<< HEAD
   const isDropdownActive = (basePath) => {
     return window.location.pathname.startsWith(basePath);
   };
@@ -47,38 +33,13 @@ function NavigationBar()
     setLoading(true);
 
     if (!currentToken) {
-=======
-  const isDropdownActive = (basePath) =>
-  {
-    return window.location.pathname.startsWith(basePath);
-  };
-
-  const [loading,setLoading] = useState(false);
-  const [showLogoutModal,setShowLogoutModal] = useState(false);
-  const [status,setStatus] = useState(null);
-  const [showNotify,setShowNotify] = useState(false);
-  const [successMessage,setSuccessMessage] = useState("");
-  const [errorMessage,setErrorMessage] = useState("");
-
-  const handleLogout = async () =>
-  {
-    setLoading(true);
-
-    if (!currentToken)
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
       console.error("No token found, redirecting to login");
       setLoading(false);
       navigate("/login");
       return;
     }
 
-<<<<<<< HEAD
     try {
-=======
-    try
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
       await axios.post(
         "http://localhost:8000/api/logout",
         {},
@@ -90,19 +51,10 @@ function NavigationBar()
       );
       setSuccessMessage("Logout successful!");
       setStatus('success');
-<<<<<<< HEAD
     } catch (error) {
       setErrorMessage(error);
       setStatus('error');
     } finally {
-=======
-    } catch (error)
-    {
-      setErrorMessage(error);
-      setStatus('error');
-    } finally
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
       clearToken();
       sessionStorage.removeItem("nomor_anggota");
       sessionStorage.removeItem("jabatan");
@@ -110,7 +62,6 @@ function NavigationBar()
 
       navigate("/login");
 
-<<<<<<< HEAD
       setTimeout(() => {
         setLoading(false);
         setShowNotify(true);
@@ -124,24 +75,6 @@ function NavigationBar()
     setTimeout(() => {
       setStatus(null);
     }, 100);
-=======
-      setTimeout(() =>
-      {
-        setLoading(false);
-        setShowNotify(true);
-      },100);
-    }
-  };
-
-  const handleCloseNotify = () =>
-  {
-    setShowNotify(false);
-
-    setTimeout(() =>
-    {
-      setStatus(null);
-    },100);
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
   };
 
   const handleLogoutConfirmation = () => {

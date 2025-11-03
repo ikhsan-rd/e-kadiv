@@ -1,14 +1,7 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Modal, Col, Row, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { SansDatePicker, SansDivisiDropdown, SansMoneyInput, SansMoneyToSend } from '../ComponentCustom/SansComps';
-=======
-import React,{ useState,useEffect } from 'react';
-import { Form,Button,Modal,Col,Row,Spinner } from 'react-bootstrap';
-import axios from 'axios';
-import { SansDatePicker,SansDivisiDropdown,SansMoneyInput,SansMoneyToSend } from '../ComponentCustom/SansComps';
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
 
 function DanaMasukEdit({
     formData,
@@ -23,33 +16,18 @@ function DanaMasukEdit({
     setErrorMessage,
     setSuccessMessage,
     fetchTableData,
-<<<<<<< HEAD
 }) {
     const currentToken = sessionStorage.getItem('token');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-=======
-})
-{
-    const currentToken = sessionStorage.getItem('token');
-
-    const handleChange = (e) =>
-    {
-        const { name,value } = e.target;
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setFormData((prevData) => ({
             ...prevData,
             [name]: value,
         }));
     };
 
-<<<<<<< HEAD
     const handleEditSubmit = async (e) => {
-=======
-    const handleEditSubmit = async (e) =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         e.preventDefault();
         setLoading(true);
 
@@ -58,14 +36,8 @@ function DanaMasukEdit({
             tgl: formData.tgl,
         };
 
-<<<<<<< HEAD
         try {
             await axios.put(`http://localhost:8000/api/dana-masuk/${editingRowId}`, formattedData, {
-=======
-        try
-        {
-            await axios.put(`http://localhost:8000/api/dana-masuk/${editingRowId}`,formattedData,{
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 headers: {
                     Authorization: `Bearer ${currentToken}`,
                     "Content-Type": "application/json",
@@ -78,7 +50,6 @@ function DanaMasukEdit({
             setShowNotify(true);
             fetchTableData();
             handleCancelClick();
-<<<<<<< HEAD
         } catch (error) {
             setErrorMessage("Terjadi Kesalahan");
             setStatus('error');
@@ -88,20 +59,6 @@ function DanaMasukEdit({
                 console.error("Response data:", error.response.data);
             }
         } finally {
-=======
-        } catch (error)
-        {
-            setErrorMessage("Terjadi Kesalahan");
-            setStatus('error');
-            setShowNotify(true);
-            console.error("Error updating data:",error);
-            if (error.response)
-            {
-                console.error("Response data:",error.response.data);
-            }
-        } finally
-        {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             setLoading(false);
         }
     };
@@ -111,10 +68,6 @@ function DanaMasukEdit({
             show={isEditing}
             onHide={handleCancelClick}
             size='md'
-<<<<<<< HEAD
-            centered
-=======
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         >
             <Modal.Header closeButton>
                 <Modal.Title>Edit Dana Keluar</Modal.Title>

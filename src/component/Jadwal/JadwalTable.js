@@ -1,20 +1,10 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Form, Row, Col, Button, Modal, ModalBody } from 'react-bootstrap';
-=======
-import React,{ useState,useEffect } from 'react';
-import { Container,Table,Form,Row,Col,Button,Modal,ModalBody } from 'react-bootstrap';
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
 import { Download } from 'react-bootstrap-icons';
 import axios from 'axios';
 import { JadwalPrint } from './JadwalPrint';
 import JadwalEdit from './JadwalEdit';
-<<<<<<< HEAD
 import {
-=======
-import
-{
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     SansSearch,
     SansSpinnerOnTable,
     SansButtonEdit,
@@ -31,17 +21,11 @@ import
 } from '../ComponentCustom/SansComps';
 import JadwalInput from './JadwalInput';
 
-<<<<<<< HEAD
 function JadwalTable() {
-=======
-function JadwalTable()
-{
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
     const currentJabatan = sessionStorage.getItem('jabatan');
     const currentToken = sessionStorage.getItem('token');
     const currentDivisi = sessionStorage.getItem('divisi');
 
-<<<<<<< HEAD
     const [loading, setLoading] = useState(false);
 
     //Fetch
@@ -112,92 +96,6 @@ function JadwalTable()
         }
 
         if (searchTerm) {
-=======
-    const [loading,setLoading] = useState(false);
-
-    //Fetch
-    const [tableData,setTableData] = useState([]);
-    const { sortedData,requestSort,getSortIcon } = SansSortableTable({
-        data: tableData,
-        defaultSort: 'formatted_tgl_mulai',
-        type: 'descending',
-    });
-
-    useEffect(() =>
-    {
-        fetchTableData();
-    },[]);
-
-    const fetchTableData = async () =>
-    {
-        setLoading(true);
-
-        try
-        {
-            const response = await axios.get('http://localhost:8000/api/jadwal',{
-                headers: {
-                    'Authorization': `Bearer ${currentToken}`,
-                },
-            });
-            console.log('Data fetched: ',response.data);
-
-            const formattedData = response.data.data.map(item =>
-            {
-                return {
-                    ...item,
-                    formatted_tgl_mulai: SansFormatDate(item.tgl_mulai),
-                    formatted_tgl_selesai: SansFormatDate(item.tgl_selesai),
-                    formatted_jam_mulai: SansFormatTime(item.jam_mulai),
-                    formatted_jam_selesai: SansFormatTime(item.jam_selesai),
-                };
-            });
-
-            setTableData(formattedData);
-        } catch (error)
-        {
-            console.error('Error fetching data:',error);
-            if (error.response)
-            {
-                console.log(error.response);
-            } else
-            {
-                console.error('Error response not available');
-            }
-        } finally
-        {
-            setLoading(false);
-        }
-    };
-
-    //filter, sort, search
-    const [filter,setFilter] = useState('');
-    const [statusFilter,setStatusFilter] = useState('N');
-    const [searchTerm,setSearchTerm] = useState('');
-    const [filtered,setFiltered] = useState([]);
-
-    useEffect(() =>
-    {
-        let filteredData = sortedData;
-
-        if (currentDivisi === '-')
-        {
-            if (filter !== '')
-            {
-                filteredData = filteredData.filter(item => item.divisi === filter);
-            }
-        } else
-        {
-            filteredData = filteredData.filter(item => item.divisi === currentDivisi);
-        }
-
-        if (statusFilter)
-        {
-            filteredData = filteredData.filter(item => item.status === statusFilter);
-        }
-
-        if (searchTerm)
-        {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             const lowerSearch = searchTerm.toLowerCase();
             filteredData = filteredData.filter(item =>
                 item.divisi.toLowerCase().includes(lowerSearch) ||
@@ -213,23 +111,15 @@ function JadwalTable()
         }
 
         setFiltered(filteredData);
-<<<<<<< HEAD
     }, [filter, statusFilter, searchTerm, sortedData, currentDivisi]);
 
     const handleClearAll = () => {
-=======
-    },[filter,statusFilter,searchTerm,sortedData,currentDivisi]);
-
-    const handleClearAll = () =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setFilter('');
         setSearchTerm('');
         requestSort('');
     };
 
     //Add
-<<<<<<< HEAD
     const [showAdd, setShowAdd] = useState(false);
 
     const handleShowAdd = () => {
@@ -237,30 +127,13 @@ function JadwalTable()
     }
 
     const handleCloseAdd = () => {
-=======
-    const [showAdd,setShowAdd] = useState(false);
-
-    const handleShowAdd = () =>
-    {
-        setShowAdd(true);
-    }
-
-    const handleCloseAdd = () =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setShowAdd(false);
     }
 
     // Edit
-<<<<<<< HEAD
     const [isEditing, setIsEditing] = useState(false);
     const [editingRowId, setEditingRowId] = useState(null);
     const [formData, setFormData] = useState({
-=======
-    const [isEditing,setIsEditing] = useState(false);
-    const [editingRowId,setEditingRowId] = useState(null);
-    const [formData,setFormData] = useState({
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         kegiatan: "",
         divisi: "",
         tgl_mulai: null,
@@ -273,22 +146,12 @@ function JadwalTable()
         status: "",
     });
 
-<<<<<<< HEAD
     const [type, setType] = useState(null);
     const [isAllDay, setIsAllDay] = useState(false);
     const [isIuran, setIsIuran] = useState(false);
     const [isSelesai, setIsSelesai] = useState(false);
 
     const handleEditClick = (item) => {
-=======
-    const [type,setType] = useState(null);
-    const [isAllDay,setIsAllDay] = useState(false);
-    const [isIuran,setIsIuran] = useState(false);
-    const [isSelesai,setIsSelesai] = useState(false);
-
-    const handleEditClick = (item) =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setEditingRowId(item.id);
         setFormData({
             divisi: item.divisi,
@@ -303,7 +166,6 @@ function JadwalTable()
             status: item.status,
         });
 
-<<<<<<< HEAD
         if (item.hari) {
             setType('Repeat');
         } else if (!item.tgl_selesai) {
@@ -327,40 +189,6 @@ function JadwalTable()
         if (item.status === 'Y') {
             setIsSelesai(true)
         } else {
-=======
-        if (item.hari)
-        {
-            setType('Repeat');
-        } else if (!item.tgl_selesai)
-        {
-            setType('OneSession');
-        } else if (item.tgl_mulai && item.tgl_selesai)
-        {
-            setType('LongSession');
-        }
-
-        if (item.iuran)
-        {
-            setIsIuran(true)
-        } else
-        {
-            setIsIuran(false)
-        }
-
-        if (!item.jam_mulai && !item.jam_selesai)
-        {
-            setIsAllDay(true);
-        } else
-        {
-            setIsAllDay(false);
-        }
-
-        if (item.status === 'Y')
-        {
-            setIsSelesai(true)
-        } else
-        {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
             setIsSelesai(false)
         }
 
@@ -368,12 +196,7 @@ function JadwalTable()
     };
 
 
-<<<<<<< HEAD
     const handleCancelClick = () => {
-=======
-    const handleCancelClick = () =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setIsEditing(false);
         setEditingRowId(null);
         setFormData({
@@ -391,7 +214,6 @@ function JadwalTable()
     };
 
     //delete
-<<<<<<< HEAD
     const [deleteId, setDeleteId] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteFailed, setDeleteFailed] = useState(false);
@@ -402,21 +224,6 @@ function JadwalTable()
             setDeleteFailed(false);
             try {
                 await axios.delete(`http://localhost:8000/api/jadwal/${deleteId}`, {
-=======
-    const [deleteId,setDeleteId] = useState(null);
-    const [showDeleteModal,setShowDeleteModal] = useState(false);
-    const [deleteFailed,setDeleteFailed] = useState(false);
-
-    const handleDelete = async () =>
-    {
-        if (deleteId)
-        {
-            setLoading(true);
-            setDeleteFailed(false);
-            try
-            {
-                await axios.delete(`http://localhost:8000/api/jadwal/${deleteId}`,{
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                     headers: {
                         'Authorization': `Bearer ${currentToken}`,
                     },
@@ -427,59 +234,33 @@ function JadwalTable()
                 setStatus('success');
                 setShowNotify(true);
                 fetchTableData();
-<<<<<<< HEAD
             } catch (err) {
-=======
-            } catch (err)
-            {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 setErrorMessage("Terjadi Kesalahan");
                 setStatus('error');
                 setShowNotify(true);
                 setDeleteFailed(true);
-<<<<<<< HEAD
                 console.error("Delete failed:", err);
                 if (err.response) {
                     console.error("Response data:", err.response.data);
                 }
             } finally {
-=======
-                console.error("Delete failed:",err);
-                if (err.response)
-                {
-                    console.error("Response data:",err.response.data);
-                }
-            } finally
-            {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 setLoading(false);
             }
 
         }
     };
 
-<<<<<<< HEAD
     const handleDeleteConfirmation = (id) => {
-=======
-    const handleDeleteConfirmation = (id) =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setDeleteId(id);
         setShowDeleteModal(true);
     };
 
-<<<<<<< HEAD
     const handleCloseModalDelete = () => {
-=======
-    const handleCloseModalDelete = () =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setDeleteId(null);
         setShowDeleteModal(false);
     };
 
     //notify
-<<<<<<< HEAD
     const [status, setStatus] = useState(null);
     const [showNotify, setShowNotify] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
@@ -499,53 +280,18 @@ function JadwalTable()
     const [pdfUrl, setPdfUrl] = useState(null);
 
     const handleShowPreview = () => {
-        if (currentDivisi === '-' && (!filter || filter === '' || filter === '-')) {
-=======
-    const [status,setStatus] = useState(null);
-    const [showNotify,setShowNotify] = useState(false);
-    const [successMessage,setSuccessMessage] = useState("");
-    const [errorMessage,setErrorMessage] = useState("");
-
-    const handleCloseNotify = () =>
-    {
-        setShowNotify(false);
-        setSuccessMessage("");
-        setErrorMessage("");
-        setTimeout(() =>
-        {
-            setStatus(null);
-        },100);
-    };
-
-    // print
-    const [showPreview,setShowPreview] = useState(false);
-    const [pdfUrl,setPdfUrl] = useState(null);
-
-    const handleShowPreview = () =>
-    {
-        if (!filter || filter === '' || filter === '-')
-        {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
+        if (!filter || filter === '' || filter === '-') {
             setErrorMessage("Pilih divisi terlebih dahulu");
             setStatus('error');
             setShowNotify(true);
             return;
         }
-<<<<<<< HEAD
         const url = JadwalPrint(filtered, filter);
-=======
-        const url = JadwalPrint(filtered,filter);
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setPdfUrl(url);
         setShowPreview(true);
     }
 
-<<<<<<< HEAD
     const handleClosePerview = () => {
-=======
-    const handleClosePerview = () =>
-    {
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
         setShowPreview(false);
         setPdfUrl(null);
     }
@@ -628,18 +374,7 @@ function JadwalTable()
                             {loading ? (
                                 <SansSpinnerOnTable />
                             ) : filtered.length > 0 ? (
-<<<<<<< HEAD
                                 filtered.map((item, index) => (
-                                    <tr key={item.id}>
-                                        <td className='text-center'>{index + 1}</td>
-                                        <td className='text-center'>
-                                            {item.formatted_tgl_mulai}
-                                            {item.formatted_tgl_selesai ? ` - ${item.formatted_tgl_selesai}` : ''}
-                                        </td>
-                                        <td className='text-center'>{item.hari ? item.hari : '-'}</td>
-                                        <td className='text-center'>{item.kegiatan}</td>
-=======
-                                filtered.map((item,index) => (
                                     <tr key={item.id}>
                                         <td className='text-center'>{index + 1}</td>
                                         <td>
@@ -648,16 +383,11 @@ function JadwalTable()
                                         </td>
                                         <td>{item.hari ? item.hari : '-'}</td>
                                         <td>{item.kegiatan}</td>
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                                         <td className='text-center'>
                                             {`${item.formatted_jam_mulai} - ${item.formatted_jam_selesai}`}
                                         </td>
                                         <td>{item.tempat}</td>
-<<<<<<< HEAD
-                                        <td>Rp{item.iuran ? item.iuran : '0'}</td>
-=======
                                         <td>Rp {item.iuran ? item.iuran : '-'}</td>
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                                         {(currentJabatan === 'Admin' || currentJabatan === 'Kadiv') && (
                                             <td className='text-center'>
                                                 <SansButtonEdit
@@ -678,11 +408,7 @@ function JadwalTable()
                 </Form>
             </Container>
 
-<<<<<<< HEAD
             <Modal show={showAdd} onHide={handleCloseAdd} style={{ borderRadius: '5px' }} size='xl' centered>
-=======
-            <Modal show={showAdd} onHide={handleCloseAdd} style={{borderRadius: '5px' }} size='xl' centered>
->>>>>>> a3483058bf086d0b4f91f4a53307dea9d5b0ce7a
                 <Modal.Header closeButton>
                     <Modal.Title>Tambah Jadwal</Modal.Title>
                 </Modal.Header>
